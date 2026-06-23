@@ -1028,9 +1028,9 @@ function buildPDFHtml(){
 
   // Coords link
   const coordStr=lat&&lng?`(${lat}; ${lng})`:'';
-  const mapsUrl=lat&&lng?`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`:'';
+  const mapsUrl=lat&&lng?`https://www.google.com/maps/search/?api=1&query=${String(lat).replace(',','.')},${String(lng).replace(',','.')}`:'';
   const titleHtml=coordStr&&mapsUrl
-    ?`${nome}</div><div class="pdf-coords" onclick="window.open('${mapsUrl}','_blank')">${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`
+    ?`${nome}</div><div class="pdf-coords" onclick="window.open('${mapsUrl}','_blank')">${parseFloat(String(lat).replace(',','.')).toFixed(4)}, ${parseFloat(String(lng).replace(',','.')).toFixed(4)}`
     :nome;
 
   const condRows=condicionantes.map(c=>`<tr><td>${c.label}</td><td>${badge(condVal(c))}</td></tr>`).join('');
