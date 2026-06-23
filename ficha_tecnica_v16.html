@@ -216,8 +216,8 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-body">
         <div class="form-grid">
           <div class="field form-full"><label>Nome / Localização</label><input type="text" id="g-nome" placeholder="Ex: Terreno de Évora — Herdade do Monte"></div>
-          <div class="field"><label>Latitude</label><input type="text" id="g-lat" placeholder="Ex: 38.814688"></div>
-          <div class="field"><label>Longitude</label><input type="text" id="g-lng" placeholder="Ex: -9.325945"></div>
+          <div class="field"><label>Latitude</label><input type="text" id="g-lat" placeholder="Ex: 38,814688"></div>
+          <div class="field"><label>Longitude</label><input type="text" id="g-lng" placeholder="Ex: -9,325945"></div>
           <div class="field"><label>Área Total (ha)</label><input type="number" id="g-area" placeholder="Ex: 12.5" step="0.1"></div>
           <div class="field"><label>Referência Interna</label><input type="text" id="g-ref" placeholder="Ex: ECO-2025-051"></div>
           <div class="field">
@@ -265,6 +265,9 @@ textarea{resize:vertical;min-height:90px;}
     <div class="step-card">
       <div class="step-card-head"><div class="step-num">3</div><span>Imagens — Análise do Terreno</span></div>
       <div class="step-body">
+        <div style="background:#fffbe6;border:1px solid #d4a800;border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#7a5c00;">
+          ⚠️ <strong>Atenção:</strong> As fotografias inseridas neste passo <strong>não ficam guardadas na nuvem</strong> — apenas a foto principal é enviada para o Drive ao guardar no Passo 8. Guarde as fotografias no seu computador para não as perder.
+        </div>
         <div class="info-note">Carregue a imagem principal. Imagens adicionais só aparecem no PDF se forem carregadas — sem distorção.</div>
         <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Imagem Principal</label>
         <div class="img-upload-area" onclick="document.getElementById('img-main-input').click()" style="margin-top:6px;">
@@ -397,7 +400,7 @@ textarea{resize:vertical;min-height:90px;}
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
                   <input type="checkbox" id="pdf-col-consumo" checked style="width:14px;height:14px;accent-color:var(--verde);">
-                  Consumo Estimado
+                  Consumo Anual Estimado (MWh)
                 </label>
               </div>
             </div>
@@ -1337,8 +1340,8 @@ async function saveToSheet() {
   const btn = document.getElementById('btn-save-db');
   const nome     = document.getElementById('g-nome').value || '';
   const ref      = document.getElementById('g-ref').value || '';
-  const lat      = document.getElementById('g-lat').value || '';
-  const lng      = document.getElementById('g-lng').value || '';
+  const lat      = (document.getElementById('g-lat').value || '').replace(',', '.');
+  const lng      = (document.getElementById('g-lng').value || '').replace(',', '.');
   const area     = document.getElementById('g-area').value || '';
   const areaUtil = document.getElementById('area-util').value || '';
   const analista = document.getElementById('g-analista').value || '';
@@ -1456,7 +1459,8 @@ async function saveToSheet() {
   showSaveStatus('info', '💾 A guardar na base de dados...');
 
   const payload = {
-    action: 'saveTereno',
+    action: window._editId ? 'updateTereno' : 'saveTereno',
+    id:         window._editId || undefined,
     cod:        ref || ('T' + Date.now()),
     nome,
     lugar:      subConc || '',
