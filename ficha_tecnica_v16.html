@@ -216,8 +216,8 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-body">
         <div class="form-grid">
           <div class="field form-full"><label>Nome / Localização</label><input type="text" id="g-nome" placeholder="Ex: Terreno de Évora — Herdade do Monte"></div>
-          <div class="field"><label>Latitude</label><input type="text" id="g-lat" placeholder="Ex: 38,814688"></div>
-          <div class="field"><label>Longitude</label><input type="text" id="g-lng" placeholder="Ex: -9,325945"></div>
+          <div class="field"><label>Latitude <span style="font-size:9px;color:#888;">(separador decimal: vírgula)</span></label><input type="text" id="g-lat" placeholder="Ex: 38,814688"></div>
+          <div class="field"><label>Longitude <span style="font-size:9px;color:#888;">(separador decimal: vírgula)</span></label><input type="text" id="g-lng" placeholder="Ex: -9,325945"></div>
           <div class="field"><label>Área Total (ha)</label><input type="number" id="g-area" placeholder="Ex: 12.5" step="0.1"></div>
           <div class="field"><label>Referência Interna</label><input type="text" id="g-ref" placeholder="Ex: ECO-2025-051"></div>
           <div class="field">
@@ -265,6 +265,7 @@ textarea{resize:vertical;min-height:90px;}
     <div class="step-card">
       <div class="step-card-head"><div class="step-num">3</div><span>Imagens — Análise do Terreno</span></div>
       <div class="step-body">
+        <div id="edit-photo-info" style="display:none;background:#edf6e4;border:1px solid #b8dfa0;border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#3D5C40;"></div>
         <div style="background:#fffbe6;border:1px solid #d4a800;border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#7a5c00;">
           ⚠️ <strong>Atenção:</strong> As fotografias inseridas neste passo <strong>não ficam guardadas na nuvem</strong> — apenas a foto principal é enviada para o Drive ao guardar no Passo 8. Guarde as fotografias no seu computador para não as perder.
         </div>
@@ -1340,8 +1341,8 @@ async function saveToSheet() {
   const btn = document.getElementById('btn-save-db');
   const nome     = document.getElementById('g-nome').value || '';
   const ref      = document.getElementById('g-ref').value || '';
-  const lat      = (document.getElementById('g-lat').value || '').replace(',', '.');
-  const lng      = (document.getElementById('g-lng').value || '').replace(',', '.');
+  const lat      = (document.getElementById('g-lat').value || '').replace('.', ','); // always store with comma
+  const lng      = (document.getElementById('g-lng').value || '').replace('.', ','); // always store with comma
   const area     = document.getElementById('g-area').value || '';
   const areaUtil = document.getElementById('area-util').value || '';
   const analista = document.getElementById('g-analista').value || '';
@@ -1368,6 +1369,12 @@ async function saveToSheet() {
 
   btn.disabled = true;
   btn.textContent = '⏳ A processar...';
+
+  // If new terreno (not edit), reset stored URLs
+  if (!window._editId) {
+    window._editFotoUrl = '';
+    window._editPdfUrl = '';
+  }
 
   // Safety timeout - if something hangs, reset button after 60s
   const safetyTimeout = setTimeout(() => {
@@ -1397,7 +1404,8 @@ async function saveToSheet() {
   showSaveStatus('info', '📸 A carregar imagem...');
 
   // Upload main image to Drive
-  let fotoUrl = '';
+  // If editing and no new photo, preserve existing fotoUrl from Sheet
+  let fotoUrl = window._editFotoUrl || '';
   if (imgMain) {
     fotoUrl = await uploadImageToDrive(imgMain, (ref||'terreno') + '_foto.jpg');
   }
@@ -1483,7 +1491,7 @@ async function saveToSheet() {
     notas: notasSave,
     notasInternas: document.getElementById('save-notas-internas') ? document.getElementById('save-notas-internas').value || '' : '',
     prop, tipo,
-    pdfUrl,
+    pdfUrl: pdfUrl || (window._editId ? (window._editPdfUrl || '') : ''),
     fotoUrl,
   };
 
@@ -1675,8 +1683,19 @@ async function preloadFromSheet() {
       if (el) el.value = t.notasInternas;
     }
 
-    // Store id for update
+    // Store id and existing fotoUrl for update
     window._editId = editId;
+    window._editFotoUrl = t.fotoUrl || '';
+    window._editPdfUrl = t.pdfUrl || '';
+
+    // Show existing photo info in step 3
+    if (t.fotoUrl) {
+      const photoInfo = document.getElementById('edit-photo-info');
+      if (photoInfo) {
+        photoInfo.style.display = 'block';
+        photoInfo.innerHTML = '✅ <strong>Foto guardada no Drive.</strong> Se não carregar uma nova foto, a foto atual será mantida. <a href="' + t.fotoUrl + '" target="_blank">Ver foto atual</a>';
+      }
+    }
 
     document.title = '✏ Editar: ' + (t.nome || editId);
     console.log('Terreno carregado:', t.nome);
