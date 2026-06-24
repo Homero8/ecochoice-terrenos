@@ -954,16 +954,7 @@ function buildOffPage(raioSlice, seSlice, nome, ref, pagNum, totalPags, pvPage2H
   const colConsumo=document.getElementById('pdf-col-consumo')?document.getElementById('pdf-col-consumo').checked:true;
   const renderCol=(data,title)=>{
     if(!data||!data.length) return `<div style="font-size:8px;color:#6B7C6D;font-style:italic;padding:8px 0;">Sem dados</div>`;
-    const filtered = data.filter(function(r){ return r.empresa && r.empresa.toLowerCase() !== 'empresa'; });
-    if(!filtered.length) return `<div style="font-size:8px;color:#6B7C6D;font-style:italic;padding:8px 0;">Sem dados</div>`;
-    const headerRow = `<div class="pdf-off-row2" style="border-bottom:2px solid #3D5C40;margin-bottom:2px;padding-bottom:4px;">
-      <div class="pdf-off-num2" style="background:transparent;color:#6B7C6D;">#</div>
-      <div class="pdf-off-name2" style="font-size:7px;font-weight:800;color:#3D5C40;text-transform:uppercase;letter-spacing:.08em;">Empresa</div>
-      ${colSector?`<span class="pdf-off-sector2" style="background:transparent;color:#3D5C40;font-weight:800;letter-spacing:.08em;">Sector</span>`:''}
-      ${colContactos?`<div class="pdf-off-contact2" style="font-size:6.5px;font-weight:800;color:#3D5C40;text-transform:uppercase;letter-spacing:.08em;">Contactos</div>`:''}
-      ${colConsumo?`<div class="pdf-off-kwh2" style="font-size:6.5px;font-weight:800;color:#3D5C40;text-transform:uppercase;letter-spacing:.08em;">Consumo</div>`:''}
-    </div>`;
-    return headerRow + filtered.map((r,i)=>`<div class="pdf-off-row2">
+    return data.filter(function(r){ return r.empresa && r.empresa.toLowerCase() !== 'empresa'; }).map((r,i)=>`<div class="pdf-off-row2">
       <div class="pdf-off-num2">${r._idx}</div>
       <div class="pdf-off-name2">${r.empresa}</div>
       ${colSector?`<span class="pdf-off-sector2">${r.sector}</span>`:''}
@@ -1233,16 +1224,20 @@ function toggleEstadoPreco() {
   const v = document.getElementById('g-estado').value;
   const row = document.getElementById('estado-preco-row');
   const lbl = document.getElementById('estado-preco-label');
+  const inp = document.getElementById('g-estado-preco');
   if (v === 'arrendamento') {
     row.style.display = 'flex';
     lbl.textContent = 'Preço de Arrendamento';
-    document.getElementById('g-estado-preco').placeholder = 'Ex: 800 €/ha/ano';
+    inp.placeholder = 'Ex: 800 €/ha/ano';
+    if (!inp.value) inp.value = '€ ';
   } else if (v === 'venda') {
     row.style.display = 'flex';
     lbl.textContent = 'Preço de Venda';
-    document.getElementById('g-estado-preco').placeholder = 'Ex: 350.000 €';
+    inp.placeholder = 'Ex: 350.000 €';
+    if (!inp.value) inp.value = '€ ';
   } else {
     row.style.display = 'none';
+    inp.value = '';
   }
 }
 
