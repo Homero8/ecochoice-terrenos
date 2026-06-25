@@ -215,11 +215,11 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-card-head"><div class="step-num">1</div><span>Identificação do Terreno</span></div>
       <div class="step-body">
         <div class="form-grid">
-          <div class="field form-full"><label>Nome / Localização</label><input type="text" id="g-nome" placeholder="Ex: Terreno de Évora — Herdade do Monte"></div>
-          <div class="field"><label>Latitude <span style="font-size:9px;color:#888;">(separador decimal: vírgula)</span></label><input type="text" id="g-lat" placeholder="Ex: 38,814688"></div>
-          <div class="field"><label>Longitude <span style="font-size:9px;color:#888;">(separador decimal: vírgula)</span></label><input type="text" id="g-lng" placeholder="Ex: -9,325945"></div>
-          <div class="field"><label>Área Total (ha)</label><input type="number" id="g-area" placeholder="Ex: 12.5" step="0.1"></div>
-          <div class="field"><label>Referência Interna</label><input type="text" id="g-ref" placeholder="Ex: ECO-2025-051"></div>
+          <div class="field form-full"><label>Nome / Localização</label><input autocomplete="off" type="text" id="g-nome" placeholder="Ex: Terreno de Évora — Herdade do Monte"></div>
+          <div class="field"><label>Latitude <span style="font-size:9px;color:#888;">(separador decimal: vírgula)</span></label><input autocomplete="off" type="text" id="g-lat" placeholder="Ex: 38,814688"></div>
+          <div class="field"><label>Longitude <span style="font-size:9px;color:#888;">(separador decimal: vírgula)</span></label><input autocomplete="off" type="text" id="g-lng" placeholder="Ex: -9,325945"></div>
+          <div class="field"><label>Área Total (ha)</label><input autocomplete="off" type="number" id="g-area" placeholder="Ex: 12.5" step="0.1"></div>
+          <div class="field"><label>Referência Interna</label><input autocomplete="off" type="text" id="g-ref" placeholder="Ex: ECO-2025-051"></div>
           <div class="field">
             <label>Estado do Terreno</label>
             <select id="g-estado" onchange="toggleEstadoPreco()">
@@ -230,14 +230,14 @@ textarea{resize:vertical;min-height:90px;}
           </div>
           <div class="field" id="estado-preco-row" style="display:none;">
             <label id="estado-preco-label">Preço de Arrendamento</label>
-            <input type="text" id="g-estado-preco" placeholder="Ex: 800 €/ha/ano">
+            <input autocomplete="off" type="text" id="g-estado-preco" placeholder="Ex: 800 €/ha/ano">
           </div>
           <div class="field"><label>Tipo de Projeto</label>
             <select id="g-tipo"><option value="">Selecionar...</option><option>Central Solar</option><option>CER</option><option>UPP</option><option>CER / UPP</option><option>UPAC</option><option>BSP</option><option>Data Center</option><option>A definir</option></select>
           </div>
-          <div class="field"><label>Proprietário / Contacto</label><input type="text" id="g-prop" placeholder="Ex: Susana Silva — 912 345 678"></div>
-          <div class="field"><label>Analista</label><input type="text" id="g-analista" placeholder="Ex: Homero"></div>
-          <div class="field"><label>Data da Análise</label><input type="text" id="g-data"></div>
+          <div class="field"><label>Proprietário / Contacto</label><input autocomplete="off" type="text" id="g-prop" placeholder="Ex: Susana Silva — 912 345 678"></div>
+          <div class="field"><label>Analista</label><input autocomplete="off" type="text" id="g-analista" placeholder="Ex: Homero"></div>
+          <div class="field"><label>Data da Análise</label><input autocomplete="off" type="text" id="g-data"></div>
         </div>
       </div>
     </div>
@@ -252,7 +252,7 @@ textarea{resize:vertical;min-height:90px;}
         <div class="info-note">Passe o rato sobre o <strong>?</strong> de cada condicionante para ver onde consultar e notas técnicas importantes.</div>
         <div class="cond-grid" id="cond-grid"></div>
         <div style="margin-top:16px;display:flex;gap:14px;align-items:flex-end;">
-          <div class="field" style="flex:0 0 150px;"><label>Área Útil Total (ha)</label><input type="number" id="area-util" placeholder="Ex: 10.3" step="0.1"></div>
+          <div class="field" style="flex:0 0 150px;"><label>Área Útil Total (ha)</label><input autocomplete="off" type="number" id="area-util" placeholder="Ex: 10.3" step="0.1"></div>
           <div style="font-size:10px;color:var(--muted);padding-bottom:10px;line-height:1.5;">Após cruzar todas as condicionantes no QGIS,<br>introduza a área útil resultante.</div>
         </div>
       </div>
@@ -272,14 +272,14 @@ textarea{resize:vertical;min-height:90px;}
         <div class="info-note">Carregue a imagem principal. Imagens adicionais só aparecem no PDF se forem carregadas — sem distorção.</div>
         <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Imagem Principal</label>
         <div class="img-upload-area" onclick="document.getElementById('img-main-input').click()" style="margin-top:6px;">
-          <input type="file" id="img-main-input" accept="image/*" onchange="handleMainImg(event)">
+          <input autocomplete="off" type="file" id="img-main-input" accept="image/*" onchange="handleMainImg(event)">
           <div class="img-upload-label"><strong>Clique para carregar</strong> a imagem principal do QGIS</div>
         </div>
         <div id="img-main-preview"></div>
         <div style="margin-top:14px;">
           <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Imagens Adicionais (opcional)</label>
           <div class="img-upload-area" onclick="document.getElementById('img-extra-input').click()" style="margin-top:6px;">
-            <input type="file" id="img-extra-input" accept="image/*" multiple onchange="handleExtraImgs(event)">
+            <input autocomplete="off" type="file" id="img-extra-input" accept="image/*" multiple onchange="handleExtraImgs(event)">
             <div class="img-upload-label"><strong>Clique para carregar</strong> imagens adicionais com legenda</div>
           </div>
           <div class="img-previews" id="img-extra-previews"></div>
@@ -296,9 +296,9 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-body">
         <div class="info-note"><div class="link-row"><span>Consulte:</span><a class="link-helper" href="https://e-redes.maps.arcgis.com/apps/webappviewer/index.html" target="_blank">↗ e-redes Mapa</a><a class="link-helper" href="https://www.e-redes.pt/pt-pt/rede/informacao-da-rede/capacidade-de-recepcao-da-rede" target="_blank">↗ Capacidade RND</a></div></div>
         <div class="form-grid">
-          <div class="field"><label>Nome da Subestação</label><input type="text" id="sub-nome" placeholder="Ex: MEM MARTINS"></div>
-          <div class="field"><label>Concelho</label><input type="text" id="sub-concelho" placeholder="Ex: Sintra"></div>
-          <div class="field form-full"><label>Distância ao ponto de ligação</label><input type="text" id="sub-dist" placeholder="Ex: 250 m / 1,2 km"></div>
+          <div class="field"><label>Nome da Subestação</label><input autocomplete="off" type="text" id="sub-nome" placeholder="Ex: MEM MARTINS"></div>
+          <div class="field"><label>Concelho</label><input autocomplete="off" type="text" id="sub-concelho" placeholder="Ex: Sintra"></div>
+          <div class="field form-full"><label>Distância ao ponto de ligação</label><input autocomplete="off" type="text" id="sub-dist" placeholder="Ex: 250 m / 1,2 km"></div>
         </div>
         <div style="margin-top:14px;">
           <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Capacidade Disponível</label>
@@ -306,14 +306,14 @@ textarea{resize:vertical;min-height:90px;}
         </div>
         <div id="cap-detail" style="display:none;margin-top:12px;">
           <div class="form-grid">
-            <div class="field"><label>Capacidade disponível (MVA)</label><input type="number" id="cap-valor" placeholder="Ex: 28.4" step="0.1"></div>
+            <div class="field"><label>Capacidade disponível (MVA)</label><input autocomplete="off" type="number" id="cap-valor" placeholder="Ex: 28.4" step="0.1"></div>
             <div class="field"><label>Nível de tensão</label><select id="cap-tensao"><option value="">Selecionar...</option><option>10 kV</option><option>15 kV</option><option>30 kV</option><option>60 kV</option></select></div>
           </div>
         </div>
         <div style="margin-top:16px;">
           <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px;">Imagens da Rede (opcional)</label>
           <div class="img-upload-area" onclick="document.getElementById('img-rede-input').click()">
-            <input type="file" id="img-rede-input" accept="image/*" multiple onchange="handleRedeImgs(event)">
+            <input autocomplete="off" type="file" id="img-rede-input" accept="image/*" multiple onchange="handleRedeImgs(event)">
             <div class="img-upload-label"><strong>Clique para carregar</strong> fotos da subestação, ponto de ligação, etc.</div>
           </div>
           <div class="img-previews" id="img-rede-previews"></div>
@@ -326,7 +326,7 @@ textarea{resize:vertical;min-height:90px;}
   <!-- STEP 5 -->
   <div class="step" id="step5">
     <div class="optional-toggle" onclick="toggleOff()">
-      <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="toggle-offtakers" onchange="toggleOff()"><div class="toggle-track"></div></label>
+      <label class="toggle-switch" onclick="event.stopPropagation()"><input autocomplete="off" type="checkbox" id="toggle-offtakers" onchange="toggleOff()"><div class="toggle-track"></div></label>
       <div><div class="toggle-label">Incluir análise de Offtakers CER</div><div class="toggle-desc">Ativar para incluir tabela de offtakers (página 2 do PDF)</div></div>
     </div>
     <div class="optional-content" id="content-offtakers">
@@ -341,7 +341,7 @@ textarea{resize:vertical;min-height:90px;}
               <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
                 <div id="excel-loaded-name" style="display:none;font-size:10px;color:var(--verde);font-weight:600;text-align:right;"></div>
                 <div style="display:flex;gap:6px;">
-                  <input type="file" id="excel-upload" accept=".xlsx,.xls" style="display:none" onchange="loadExcel(event)">
+                  <input autocomplete="off" type="file" id="excel-upload" accept=".xlsx,.xls" style="display:none" onchange="loadExcel(event)">
                   <button class="btn-excel-up" id="btn-excel-up" onclick="document.getElementById('excel-upload').click()">⬆ Carregar Excel</button>
                   <button class="btn-excel-dl" id="btn-excel-remove" style="display:none;background:#EF4444;" onclick="removeExcel()">✕ Remover</button>
                 </div>
@@ -375,11 +375,11 @@ textarea{resize:vertical;min-height:90px;}
               <div style="font-size:11px;font-weight:600;color:var(--texto);margin-bottom:6px;">Tabelas a incluir no PDF:</div>
               <div style="display:flex;flex-direction:column;gap:6px;">
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
-                  <input type="checkbox" id="pdf-show-raio" checked style="width:14px;height:14px;accent-color:var(--verde);">
+                  <input autocomplete="off" type="checkbox" id="pdf-show-raio" checked style="width:14px;height:14px;accent-color:var(--verde);">
                   Mostrar tabela Raio 4 km
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
-                  <input type="checkbox" id="pdf-show-se" checked style="width:14px;height:14px;accent-color:var(--verde);">
+                  <input autocomplete="off" type="checkbox" id="pdf-show-se" checked style="width:14px;height:14px;accent-color:var(--verde);">
                   Mostrar tabela Ligados à mesma SE
                 </label>
               </div>
@@ -388,19 +388,19 @@ textarea{resize:vertical;min-height:90px;}
               <div style="font-size:11px;font-weight:600;color:var(--texto);margin-bottom:6px;">Colunas a mostrar no PDF:</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
-                  <input type="checkbox" id="pdf-col-empresa" checked disabled style="width:14px;height:14px;accent-color:var(--verde);">
+                  <input autocomplete="off" type="checkbox" id="pdf-col-empresa" checked disabled style="width:14px;height:14px;accent-color:var(--verde);">
                   Empresa <span style="font-size:9px;color:var(--muted);">(obrigatório)</span>
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
-                  <input type="checkbox" id="pdf-col-sector" checked style="width:14px;height:14px;accent-color:var(--verde);">
+                  <input autocomplete="off" type="checkbox" id="pdf-col-sector" checked style="width:14px;height:14px;accent-color:var(--verde);">
                   Sector
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
-                  <input type="checkbox" id="pdf-col-contactos" checked style="width:14px;height:14px;accent-color:var(--verde);">
+                  <input autocomplete="off" type="checkbox" id="pdf-col-contactos" checked style="width:14px;height:14px;accent-color:var(--verde);">
                   Contactos
                 </label>
                 <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto);text-transform:none;letter-spacing:0;font-weight:400;cursor:pointer;">
-                  <input type="checkbox" id="pdf-col-consumo" checked style="width:14px;height:14px;accent-color:var(--verde);">
+                  <input autocomplete="off" type="checkbox" id="pdf-col-consumo" checked style="width:14px;height:14px;accent-color:var(--verde);">
                   Consumo Anual Estimado (MWh)
                 </label>
               </div>
@@ -415,7 +415,7 @@ textarea{resize:vertical;min-height:90px;}
   <!-- STEP 6 -->
   <div class="step" id="step6">
     <div class="optional-toggle" onclick="togglePV()">
-      <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="toggle-pvs" onchange="togglePV()"><div class="toggle-track"></div></label>
+      <label class="toggle-switch" onclick="event.stopPropagation()"><input autocomplete="off" type="checkbox" id="toggle-pvs" onchange="togglePV()"><div class="toggle-track"></div></label>
       <div><div class="toggle-label">Incluir Dimensionamento do Projeto</div><div class="toggle-desc">Ativar para incluir resultados da simulação solar</div></div>
     </div>
     <div class="optional-content" id="content-pvs">
@@ -424,12 +424,12 @@ textarea{resize:vertical;min-height:90px;}
         <div class="step-body">
           <div class="info-note"><div class="link-row"><span>Faça a simulação:</span><a class="link-helper" href="https://helioscope.aurorasolar.com" target="_blank">↗ Helioscope</a></div></div>
           <div class="form-grid">
-            <div class="field"><label>Potência Pico Instalada (MWp)</label><input type="text" id="pv-potencia" placeholder="Ex: 1,57"></div>
-            <div class="field"><label>Energia Estimada Anual (MWh/ano)</label><input type="text" id="pv-energia" placeholder="Ex: 2.540"></div>
+            <div class="field"><label>Potência Pico Instalada (MWp)</label><input autocomplete="off" type="text" id="pv-potencia" placeholder="Ex: 1,57"></div>
+            <div class="field"><label>Energia Estimada Anual (MWh/ano)</label><input autocomplete="off" type="text" id="pv-energia" placeholder="Ex: 2.540"></div>
           </div>
           <div style="margin-top:14px;">
             <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px;">Print da Simulação</label>
-            <div class="img-upload-area" onclick="document.getElementById('img-pv-input').click()"><input type="file" id="img-pv-input" accept="image/*" onchange="handlePVImg(event)"><div class="img-upload-label"><strong>Clique para carregar</strong> o print da simulação</div></div>
+            <div class="img-upload-area" onclick="document.getElementById('img-pv-input').click()"><input autocomplete="off" type="file" id="img-pv-input" accept="image/*" onchange="handlePVImg(event)"><div class="img-upload-label"><strong>Clique para carregar</strong> o print da simulação</div></div>
             <div id="img-pv-preview"></div>
           </div>
         </div>
@@ -484,7 +484,7 @@ textarea{resize:vertical;min-height:90px;}
             </div>
             <div class="field" style="grid-column:1/-1;">
               <label>NOTAS (opcional)</label>
-              <input type="text" id="save-notas" placeholder="Ex: Aguarda resposta do proprietário" style="font-size:12px;">
+              <input autocomplete="off" type="text" id="save-notas" placeholder="Ex: Aguarda resposta do proprietário" style="font-size:12px;">
             </div>
           </div>
 
@@ -562,13 +562,13 @@ function buildCondGrid(){
     row.className='cond-row';
     let ctrl='';
     if(c.type==='text'){
-      ctrl=`<input type="text" style="width:190px;padding:5px 8px;border:1px solid var(--borda);border-radius:4px;font-size:11px;background:#fff;" id="cv-${c.id}" placeholder="${c.placeholder||''}" oninput="condData['${c.id}'].val=this.value">`;
+      ctrl=`<input autocomplete="off" type="text" style="width:190px;padding:5px 8px;border:1px solid var(--borda);border-radius:4px;font-size:11px;background:#fff;" id="cv-${c.id}" placeholder="${c.placeholder||''}" oninput="condData['${c.id}'].val=this.value">`;
     } else if(c.type==='radio'){
       ctrl=`<div class="radio-group"><div class="radio-btn" onclick="setRadio('${c.id}','Sim',this)">Sim</div><div class="radio-btn" onclick="setRadio('${c.id}','Não',this)">Não</div></div>`;
     } else if(c.type==='radio-risco'){
       ctrl=`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
         <div class="radio-group"><div class="radio-btn" onclick="setRisco('${c.id}','sim',this)">Com risco</div><div class="radio-btn" onclick="setRisco('${c.id}','nao',this)">Sem risco</div></div>
-        <input type="text" class="risco-input" id="ri-${c.id}" placeholder="Tipo de risco (ex: elevado)" style="width:190px;padding:4px 8px;border:1px solid var(--borda);border-radius:4px;font-size:11px;background:#fff;" oninput="condData['${c.id}'].risco=this.value">
+        <input autocomplete="off" type="text" class="risco-input" id="ri-${c.id}" placeholder="Tipo de risco (ex: elevado)" style="width:190px;padding:4px 8px;border:1px solid var(--borda);border-radius:4px;font-size:11px;background:#fff;" oninput="condData['${c.id}'].risco=this.value">
       </div>`;
     } else if(c.type==='radio-fire'){
       ctrl=`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
@@ -586,7 +586,7 @@ function buildCondGrid(){
       const isfire=c.type==='radio-fire-multi';
       const inputHtml=isfire
         ?`<select style="flex:1;padding:3px 6px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" onchange="updateRiscoEntry('${c.id}',__IDX__,'cat',this.value)"><option value="">Categoria...</option><option>Muito Baixo</option><option>Baixo</option><option>Médio</option><option>Alto</option><option>Muito Alto</option></select>`
-        :`<input type="text" style="flex:1;padding:3px 6px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" placeholder="Tipo de risco..." onchange="updateRiscoEntry('${c.id}',__IDX__,'cat',this.value)">`;
+        :`<input autocomplete="off" type="text" style="flex:1;padding:3px 6px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" placeholder="Tipo de risco..." onchange="updateRiscoEntry('${c.id}',__IDX__,'cat',this.value)">`;
       ctrl=`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
         <div class="radio-group"><div class="radio-btn" onclick="setRiscoMulti('${c.id}','sim',this)">Com risco</div><div class="radio-btn" onclick="setRiscoMulti('${c.id}','nao',this)">Sem risco</div></div>
         <div class="risco-input" id="ri-multi-${c.id}" style="display:none;flex-direction:column;gap:4px;width:260px;">
@@ -602,10 +602,10 @@ function buildCondGrid(){
           <div class="sim-opt-btn" id="so-txt-${c.id}" onclick="setSimMode('${c.id}','txt')">Sim + texto</div>
           <div class="sim-opt-btn" id="so-ha-${c.id}" onclick="setSimMode('${c.id}','ha')">Sim + área (ha)</div>
           <div class="sim-opt-btn" id="so-hatxt-${c.id}" onclick="setSimMode('${c.id}','hatxt')">Sim + área + texto</div>
-          <input type="text" class="sim-opt-input" id="si-txt-${c.id}" placeholder="Descreva..." oninput="condData['${c.id}'].simText=this.value">
-          <input type="number" class="sim-opt-input" id="si-ha-${c.id}" placeholder="Área (ha)" step="0.01" oninput="condData['${c.id}'].area=this.value">
-          <input type="text" class="sim-opt-input" id="si-hatxt-txt-${c.id}" placeholder="Descrição da área..." oninput="condData['${c.id}'].simText=this.value">
-          <input type="number" class="sim-opt-input" id="si-hatxt-ha-${c.id}" placeholder="Área (ha)" step="0.01" oninput="condData['${c.id}'].area=this.value">
+          <input autocomplete="off" type="text" class="sim-opt-input" id="si-txt-${c.id}" placeholder="Descreva..." oninput="condData['${c.id}'].simText=this.value">
+          <input autocomplete="off" type="number" class="sim-opt-input" id="si-ha-${c.id}" placeholder="Área (ha)" step="0.01" oninput="condData['${c.id}'].area=this.value">
+          <input autocomplete="off" type="text" class="sim-opt-input" id="si-hatxt-txt-${c.id}" placeholder="Descrição da área..." oninput="condData['${c.id}'].simText=this.value">
+          <input autocomplete="off" type="number" class="sim-opt-input" id="si-hatxt-ha-${c.id}" placeholder="Área (ha)" step="0.01" oninput="condData['${c.id}'].area=this.value">
         </div>
       </div>`;
     }
@@ -674,9 +674,9 @@ function renderRiscoEntries(id, type){
           <option ${entry.cat==='Alto'?'selected':''}>Alto</option>
           <option ${entry.cat==='Muito Alto'?'selected':''}>Muito Alto</option>
         </select>`
-      :`<input type="text" value="${entry.cat}" placeholder="Tipo risco" style="flex:0 0 110px;padding:3px 5px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" oninput="updateRiscoEntry('${id}',${i},'cat',this.value)">`;
+      :`<input autocomplete="off" type="text" value="${entry.cat}" placeholder="Tipo risco" style="flex:0 0 110px;padding:3px 5px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" oninput="updateRiscoEntry('${id}',${i},'cat',this.value)">`;
     div.innerHTML=catInput+
-      `<input type="text" value="${entry.desc}" placeholder="Descrição zona (opcional)" style="flex:1;padding:3px 5px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" oninput="updateRiscoEntry('${id}',${i},'desc',this.value)">
+      `<input autocomplete="off" type="text" value="${entry.desc}" placeholder="Descrição zona (opcional)" style="flex:1;padding:3px 5px;border:1px solid var(--borda);border-radius:4px;font-size:10px;background:#fff;" oninput="updateRiscoEntry('${id}',${i},'desc',this.value)">
        <button onclick="removeRiscoEntry('${id}',${i},'${type}')" style="color:#EF4444;background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;flex-shrink:0;">×</button>`;
     cont.appendChild(div);
   });
@@ -722,7 +722,7 @@ function handleExtraImgs(e){
   });
   e.target.value='';
 }
-function renderExtraPreviews(){const c=document.getElementById('img-extra-previews');c.innerHTML='';imgExtras.forEach((img,i)=>{const d=document.createElement('div');d.className='img-preview-item';d.innerHTML=`<img src="${img.src}"><button class="img-remove" onclick="imgExtras.splice(${i},1);renderExtraPreviews()">×</button><input class="img-caption-inp" type="text" placeholder="Legenda" value="${img.caption}" oninput="imgExtras[${i}].caption=this.value">`;c.appendChild(d);});}
+function renderExtraPreviews(){const c=document.getElementById('img-extra-previews');c.innerHTML='';imgExtras.forEach((img,i)=>{const d=document.createElement('div');d.className='img-preview-item';d.innerHTML=`<img src="${img.src}"><button class="img-remove" onclick="imgExtras.splice(${i},1);renderExtraPreviews()">×</button><input autocomplete="off" class="img-caption-inp" type="text" placeholder="Legenda" value="${img.caption}" oninput="imgExtras[${i}].caption=this.value">`;c.appendChild(d);});}
 function handlePVImg(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
@@ -747,7 +747,7 @@ function renderRedeImgPreviews(){
   cont.innerHTML='';
   imgRedeImgs.forEach((img,i)=>{
     const d=document.createElement('div');d.className='img-preview-item';
-    d.innerHTML=`<img src="${img.src}"><button class="img-remove" onclick="imgRedeImgs.splice(${i},1);renderRedeImgPreviews()">×</button><input class="img-caption-inp" type="text" placeholder="Legenda (ex: Subestação)" value="${img.caption}" oninput="imgRedeImgs[${i}].caption=this.value">`;
+    d.innerHTML=`<img src="${img.src}"><button class="img-remove" onclick="imgRedeImgs.splice(${i},1);renderRedeImgPreviews()">×</button><input autocomplete="off" class="img-caption-inp" type="text" placeholder="Legenda (ex: Subestação)" value="${img.caption}" oninput="imgRedeImgs[${i}].caption=this.value">`;
     cont.appendChild(d);
   });
 }
@@ -767,7 +767,7 @@ let conclusions=[];
 function addConclusion(){conclusions.push('');renderConclusions();}
 function renderConclusions(){
   const cont=document.getElementById('conclusions-list');cont.innerHTML='';
-  conclusions.forEach((c,i)=>{const d=document.createElement('div');d.style.cssText='display:flex;gap:8px;align-items:center;';d.innerHTML=`<span style="color:var(--accent);font-size:16px;flex-shrink:0;">•</span><input type="text" value="${c}" placeholder="Ex: Terreno com bom potencial solar" style="flex:1;padding:8px 12px;border:1px solid var(--borda);border-radius:6px;font-size:12px;font-family:inherit;background:var(--fundo);outline:none;" oninput="conclusions[${i}]=this.value"><button onclick="conclusions.splice(${i},1);renderConclusions()" style="color:#EF4444;background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;">×</button>`;cont.appendChild(d);});
+  conclusions.forEach((c,i)=>{const d=document.createElement('div');d.style.cssText='display:flex;gap:8px;align-items:center;';d.innerHTML=`<span style="color:var(--accent);font-size:16px;flex-shrink:0;">•</span><input autocomplete="off" type="text" value="${c}" placeholder="Ex: Terreno com bom potencial solar" style="flex:1;padding:8px 12px;border:1px solid var(--borda);border-radius:6px;font-size:12px;font-family:inherit;background:var(--fundo);outline:none;" oninput="conclusions[${i}]=this.value"><button onclick="conclusions.splice(${i},1);renderConclusions()" style="color:#EF4444;background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;">×</button>`;cont.appendChild(d);});
 }
 
 // ── EXCEL ──
@@ -862,10 +862,10 @@ function renderOffTable(tab){
     <thead><tr><th>#</th><th>Empresa</th><th>Sector</th><th>Contactos</th><th>Consumo Est.</th><th></th></tr></thead>
     <tbody>${data.map((r,i)=>`<tr>
       <td style="color:var(--muted);font-size:10px;">${i+1}</td>
-      <td><input type="text" value="${r.empresa}" placeholder="Nome da empresa" style="border:none;background:transparent;font-size:11px;width:100%;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].empresa=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
-      <td><input type="text" value="${r.sector}" placeholder="Sector" style="border:none;background:transparent;font-size:11px;width:80px;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].sector=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
-      <td><input type="text" value="${r.contactos}" placeholder="Contacto" style="border:none;background:transparent;font-size:11px;width:90px;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].contactos=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
-      <td><input type="text" value="${r.consumo}" placeholder="MWh/ano" style="border:none;background:transparent;font-size:11px;width:70px;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].consumo=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
+      <td><input autocomplete="off" type="text" value="${r.empresa}" placeholder="Nome da empresa" style="border:none;background:transparent;font-size:11px;width:100%;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].empresa=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
+      <td><input autocomplete="off" type="text" value="${r.sector}" placeholder="Sector" style="border:none;background:transparent;font-size:11px;width:80px;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].sector=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
+      <td><input autocomplete="off" type="text" value="${r.contactos}" placeholder="Contacto" style="border:none;background:transparent;font-size:11px;width:90px;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].contactos=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
+      <td><input autocomplete="off" type="text" value="${r.consumo}" placeholder="MWh/ano" style="border:none;background:transparent;font-size:11px;width:70px;outline:none;font-family:inherit;" oninput="${tab==='raio'?'offDataRaio':'offDataSE'}[${i}].consumo=this.value" onfocus="this.style.borderBottom='1px solid var(--verde)'" onblur="this.style.borderBottom='none'"></td>
       <td><button onclick="removeOffRow('${tab}',${i})" style="color:#EF4444;background:none;border:none;cursor:pointer;font-size:13px;padding:0 2px;">×</button></td>
     </tr>`).join('')}</tbody>
   </table>`;
