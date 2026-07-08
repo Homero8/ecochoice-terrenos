@@ -233,7 +233,8 @@ textarea{resize:vertical;min-height:90px;}
             <input type="text" id="g-estado-preco" placeholder="Ex: 800 €/ha/ano">
           </div>
           <div class="field"><label>Tipo de Projeto</label>
-            <select id="g-tipo"><option value="">Selecionar...</option><option>Central Solar</option><option>CER</option><option>UPP</option><option>CER / UPP</option><option>UPAC</option><option>BSP</option><option>Data Center</option><option>A definir</option></select>
+            <select id="g-tipo" onchange="onTipoChange()"><option value="">Selecionar...</option><option value="CER">CER</option><option value="UPP/BSP">UPP/BSP</option><option value="CER ou UPP/BSP">CER ou UPP/BSP</option><option value="Data Center">Data Center</option><option value="Diferente">Diferente</option></select>
+            <input type="text" id="g-tipo-outro" placeholder="Especifique o tipo de projeto..." style="display:none;margin-top:6px;" oninput="onTipoOutroInput()">
           </div>
           <div class="field"><label>Proprietário / Contacto</label><input type="text" id="g-prop" placeholder="Ex: Susana Silva — 912 345 678"></div>
           <div class="field"><label>Analista</label><input type="text" id="g-analista" placeholder="Ex: Homero"></div>
@@ -250,9 +251,10 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-card-head"><div class="step-num">2</div><span>Condicionantes Ambientais</span></div>
       <div class="step-body">
         <div class="info-note">Passe o rato sobre o <strong>?</strong> de cada condicionante para ver onde consultar e notas técnicas importantes.</div>
+        <div class="info-note" style="margin-top:8px;">Se não tiver informação sobre alguma condicionante, não selecione nenhuma opção — aparecerá como <strong>"Sem informação"</strong> na Lista de Terrenos e no PDF. Pode clicar novamente numa opção já selecionada para a desmarcar.</div>
         <div class="cond-grid" id="cond-grid"></div>
         <div style="margin-top:16px;display:flex;gap:14px;align-items:flex-end;">
-          <div class="field" style="flex:0 0 150px;"><label>Área Útil Total (ha)</label><input type="number" id="area-util" placeholder="Ex: 10.3" step="0.1"></div>
+          <div class="field" style="flex:0 0 150px;"><label>Área Útil Total (ha)</label><input type="number" id="area-util" placeholder="Ex: 10.3" step="0.1" oninput="calcDCPower()"></div>
           <div style="font-size:10px;color:var(--muted);padding-bottom:10px;line-height:1.5;">Após cruzar todas as condicionantes no QGIS,<br>introduza a área útil resultante.</div>
         </div>
       </div>
@@ -294,7 +296,7 @@ textarea{resize:vertical;min-height:90px;}
     <div class="step-card">
       <div class="step-card-head"><div class="step-num">4</div><span>Ligação à Rede Elétrica</span></div>
       <div class="step-body">
-        <div class="info-note"><div class="link-row"><span>Consulte:</span><a class="link-helper" href="https://e-redes.maps.arcgis.com/apps/webappviewer/index.html" target="_blank">↗ e-redes Mapa</a><a class="link-helper" href="https://www.e-redes.pt/pt-pt/rede/informacao-da-rede/capacidade-de-recepcao-da-rede" target="_blank">↗ Capacidade RND</a></div></div>
+        <div class="info-note"><div class="link-row"><span>Consulte:</span><a class="link-helper" href="https://e-redes.maps.arcgis.com/apps/webappviewer/index.html" target="_blank">↗ e-redes Mapa</a><a class="link-helper" href="https://www.e-redes.pt/pt-pt/rede/informacao-da-rede/capacidade-de-recepcao-da-rede" target="_blank">↗ Capacidade RND</a><a class="link-helper" id="rede-link-at" href="https://datahub.ren.pt/pt/redes/rede-eletrica/" target="_blank" style="display:none;">↗ Rede Elétrica AT (REN)</a></div></div>
         <div class="form-grid">
           <div class="field"><label>Nome da Subestação</label><input type="text" id="sub-nome" placeholder="Ex: MEM MARTINS"></div>
           <div class="field"><label>Concelho</label><input type="text" id="sub-concelho" placeholder="Ex: Sintra"></div>
@@ -328,6 +330,10 @@ textarea{resize:vertical;min-height:90px;}
     <div class="optional-toggle" onclick="toggleOff()">
       <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="toggle-offtakers" onchange="toggleOff()"><div class="toggle-track"></div></label>
       <div><div class="toggle-label">Incluir análise de Offtakers CER</div><div class="toggle-desc">Ativar para incluir tabela de offtakers (página 2 do PDF)</div></div>
+    </div>
+    <div class="optional-toggle" onclick="toggleOffNone()" style="margin-top:10px;">
+      <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="off-none" onchange="toggleOffNone()"><div class="toggle-track"></div></label>
+      <div><div class="toggle-label">Não existem offtakers suficientes na zona que justifiquem uma CER</div><div class="toggle-desc">Substitui a tabela de offtakers no PDF por uma nota de justificação</div></div>
     </div>
     <div class="optional-content" id="content-offtakers">
       <div class="step-card">
@@ -422,15 +428,33 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-card">
         <div class="step-card-head"><div class="step-num">6</div><span>Dimensionamento do Projeto</span></div>
         <div class="step-body">
-          <div class="info-note"><div class="link-row"><span>Faça a simulação:</span><a class="link-helper" href="https://helioscope.aurorasolar.com" target="_blank">↗ Helioscope</a></div></div>
-          <div class="form-grid">
-            <div class="field"><label>Potência Pico Instalada (MWp)</label><input type="text" id="pv-potencia" placeholder="Ex: 1,57"></div>
-            <div class="field"><label>Energia Estimada Anual (MWh/ano)</label><input type="text" id="pv-energia" placeholder="Ex: 2.540"></div>
+          <div id="dim-solar-block">
+            <div class="info-note"><div class="link-row"><span>Faça a simulação:</span><a class="link-helper" href="https://helioscope.aurorasolar.com" target="_blank">↗ Helioscope</a></div></div>
+            <div class="form-grid">
+              <div class="field"><label>Potência Pico Instalada (MWp)</label><input type="text" id="pv-potencia" placeholder="Ex: 1,57"></div>
+              <div class="field"><label>Energia Estimada Anual (MWh/ano)</label><input type="text" id="pv-energia" placeholder="Ex: 2.540"></div>
+            </div>
+            <div style="margin-top:14px;">
+              <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px;">Print da Simulação</label>
+              <div class="img-upload-area" onclick="document.getElementById('img-pv-input').click()"><input type="file" id="img-pv-input" accept="image/*" onchange="handlePVImg(event)"><div class="img-upload-label"><strong>Clique para carregar</strong> o print da simulação</div></div>
+              <div id="img-pv-preview"></div>
+            </div>
           </div>
-          <div style="margin-top:14px;">
-            <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px;">Print da Simulação</label>
-            <div class="img-upload-area" onclick="document.getElementById('img-pv-input').click()"><input type="file" id="img-pv-input" accept="image/*" onchange="handlePVImg(event)"><div class="img-upload-label"><strong>Clique para carregar</strong> o print da simulação</div></div>
-            <div id="img-pv-preview"></div>
+          <div id="dim-dc-block" style="display:none;">
+            <div class="info-note">Considera-se um valor de referência de <strong>1500 m²/MW</strong> de Data Center (área de implantação necessária por MW). O cálculo usa a <strong>Área Útil Total</strong> definida no Passo 2 (Ambientais).</div>
+            <div class="form-grid">
+              <div class="field"><label>Valor de referência (m²/MW)</label><input type="number" id="dc-ref-m2mw" value="1500" step="1" oninput="calcDCPower()"></div>
+              <div class="field"><label>Potência calculada (MW)</label><input type="text" id="dc-potencia-calc" readonly style="background:var(--fundo);"></div>
+            </div>
+            <div style="margin-top:12px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--texto);cursor:pointer;">
+                <input type="checkbox" id="dc-manual-toggle" onchange="toggleDCManual()" style="width:15px;height:15px;accent-color:var(--verde);">
+                Definir manualmente a potência do Data Center
+              </label>
+              <div class="form-grid" id="dc-manual-wrap" style="display:none;margin-top:8px;">
+                <div class="field"><label>Potência definida manualmente (MW)</label><input type="text" id="dc-potencia-manual" placeholder="Ex: 12"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -465,22 +489,26 @@ textarea{resize:vertical;min-height:90px;}
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="field">
-              <label>GRUPO / TIPO DE PROYECTO</label>
-              <select id="save-grupo" style="font-size:12px;">
+              <label>CATEGORIA FINAL</label>
+              <select id="save-grupo" style="font-size:12px;" onchange="onSaveGrupoChange()">
                 <option value="CER">⚡ CER</option>
-                <option value="UPP">🏭 UPP / BSP</option>
-                <option value="PEND">🕐 Pendente</option>
-                <option value="BAD">✕ Não Viável</option>
-                <option value="DC">🖥 Data Center</option>
+                <option value="UPP/BSP">🏭 UPP / BSP</option>
+                <option value="Data Center">🖥 Data Center</option>
+                <option value="Outros">📝 Outros</option>
               </select>
             </div>
             <div class="field">
-              <label>VIABILIDADE</label>
+              <label>ESTADO DE VIABILIDADE</label>
               <select id="save-viab" style="font-size:12px;">
                 <option value="viavel">✅ Viável</option>
                 <option value="condicionado">⚠ Condicionado</option>
+                <option value="pendente">🕐 Pendente</option>
                 <option value="nao_viavel">✕ Não Viável</option>
               </select>
+            </div>
+            <div class="field" id="save-outros-wrap" style="display:none;">
+              <label>ESPECIFICAR TIPO (Outros)</label>
+              <input type="text" id="save-outros" placeholder="Ex: Biomassa, Eólica, etc." style="font-size:12px;">
             </div>
             <div class="field" style="grid-column:1/-1;">
               <label>NOTAS (opcional)</label>
@@ -615,20 +643,41 @@ function buildCondGrid(){
 }
 
 function setRadio(id,val,el){
+  if(condData[id].val===val){
+    condData[id].val='';
+    el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
+    return;
+  }
   condData[id].val=val;
   el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
   el.className=val==='Sim'?'radio-btn sel-sim':'radio-btn sel-nao';
 }
 function setRisco(id,state,el){
-  el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
   const ri=document.getElementById('ri-'+id);
+  const current=condData[id].val==='Com risco'?'sim':(condData[id].val==='Sem risco'?'nao':'');
+  if(current===state){
+    condData[id].val='';
+    el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
+    ri.style.display='none';condData[id].risco='';ri.value='';
+    return;
+  }
+  el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
   if(state==='sim'){el.className='radio-btn sel-sim';condData[id].val='Com risco';ri.style.display='block';}
   else{el.className='radio-btn sel-nao';condData[id].val='Sem risco';ri.style.display='none';condData[id].risco='';ri.value='';}
 }
 
 function setRiscoMulti(id,state,el){
-  el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
   const ri=document.getElementById('ri-multi-'+id);
+  const current=condData[id].val==='Com risco'?'sim':(condData[id].val==='Sem risco'?'nao':'');
+  if(current===state){
+    condData[id].val='';
+    el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
+    ri.style.display='none';
+    condData[id].riscoEntries=[];
+    renderRiscoEntries(id, condicionantes.find(c=>c.id===id).type);
+    return;
+  }
+  el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
   if(state==='sim'){
     el.className='radio-btn sel-sim';
     condData[id].val='Com risco';
@@ -682,9 +731,15 @@ function renderRiscoEntries(id, type){
   });
 }
 function setRadioArea(id,val,el){
+  const opts=document.getElementById('simopt-'+id);
+  if(condData[id].val===val){
+    condData[id].val='';
+    el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
+    opts.classList.remove('visible');condData[id].simMode='';condData[id].area='';condData[id].simText='';
+    return;
+  }
   condData[id].val=val;
   el.parentElement.querySelectorAll('.radio-btn').forEach(b=>b.className='radio-btn');
-  const opts=document.getElementById('simopt-'+id);
   if(val==='Sim'){el.className='radio-btn sel-sim';opts.classList.add('visible');}
   else{el.className='radio-btn sel-nao';opts.classList.remove('visible');condData[id].simMode='';condData[id].area='';condData[id].simText='';}
 }
@@ -696,6 +751,68 @@ function setSimMode(id,mode){
   if(mode==='txt') document.getElementById('si-txt-'+id).style.display='block';
   if(mode==='ha') document.getElementById('si-ha-'+id).style.display='block';
   if(mode==='hatxt'){document.getElementById('si-hatxt-ha-'+id).style.display='block';document.getElementById('si-hatxt-txt-'+id).style.display='block';}
+}
+
+// ── TIPO DE PROJETO / BLOCOS CONDICIONAIS ──
+function onTipoChange(){
+  const t=document.getElementById('g-tipo').value;
+  const outroInput=document.getElementById('g-tipo-outro');
+  if(outroInput) outroInput.style.display = (t==='Diferente')?'block':'none';
+  updateStepsForCategory();
+}
+function onTipoOutroInput(){/* keeps free-text value, no extra logic needed */}
+function offtakersApplicable(){
+  const t=document.getElementById('g-tipo').value;
+  return !(t==='UPP/BSP'||t==='Data Center');
+}
+function updateStepsForCategory(){
+  const t=document.getElementById('g-tipo').value;
+  const applicable=offtakersApplicable();
+  const ps5=document.getElementById('ps5');
+  if(ps5) ps5.style.display=applicable?'':'none';
+  if(!applicable){
+    const cb=document.getElementById('toggle-offtakers');
+    if(cb&&cb.checked){cb.checked=false;toggleOff();}
+    const noneCb=document.getElementById('off-none');
+    if(noneCb&&noneCb.checked){noneCb.checked=false;}
+  }
+  const isDC=(t==='Data Center');
+  const atLink=document.getElementById('rede-link-at');
+  if(atLink) atLink.style.display=isDC?'':'none';
+  const dimSolar=document.getElementById('dim-solar-block');
+  const dimDC=document.getElementById('dim-dc-block');
+  if(dimSolar) dimSolar.style.display=isDC?'none':'';
+  if(dimDC) dimDC.style.display=isDC?'':'none';
+  if(isDC) calcDCPower();
+}
+function calcDCPower(){
+  const out=document.getElementById('dc-potencia-calc');
+  if(!out) return;
+  const areaUtilRaw=(document.getElementById('area-util').value||'').toString().replace(',','.');
+  const areaUtil=parseFloat(areaUtilRaw);
+  const ref=parseFloat(document.getElementById('dc-ref-m2mw').value)||1500;
+  if(!areaUtil||areaUtil<=0){out.value='';return;}
+  const mw=(areaUtil*10000)/ref;
+  out.value=fmtNum(Math.round(mw))+' MW';
+}
+function toggleDCManual(){
+  const chk=document.getElementById('dc-manual-toggle').checked;
+  document.getElementById('dc-manual-wrap').style.display=chk?'':'none';
+}
+function onSaveGrupoChange(){
+  const g=document.getElementById('save-grupo').value;
+  const wrap=document.getElementById('save-outros-wrap');
+  const field=document.getElementById('save-outros');
+  if(g==='Outros'){
+    wrap.style.display='';
+    const tipoOutroEl=document.getElementById('g-tipo-outro');
+    if(tipoOutroEl&&tipoOutroEl.value.trim()){
+      field.value=tipoOutroEl.value.trim();
+    }
+  } else {
+    wrap.style.display='none';
+    field.value='';
+  }
 }
 
 // ── CAPACIDADE ──
@@ -755,12 +872,26 @@ function renderRedeImgPreviews(){
 // ── TOGGLES ──
 function toggleOff(){
   const cb=document.getElementById('toggle-offtakers');
+  if(cb.checked){
+    const noneCb=document.getElementById('off-none');
+    if(noneCb&&noneCb.checked) noneCb.checked=false;
+  }
   document.getElementById('content-offtakers').classList.toggle('visible',cb.checked);
   if(cb.checked&&offDataRaio.length===0&&offDataSE.length===0){
     document.getElementById('off-manual-start').style.display='block';
   }
 }
 function togglePV(){const cb=document.getElementById('toggle-pvs');document.getElementById('content-pvs').classList.toggle('visible',cb.checked);}
+function toggleOffNone(){
+  const cb=document.getElementById('off-none');
+  if(cb.checked){
+    const offCb=document.getElementById('toggle-offtakers');
+    if(offCb.checked){
+      offCb.checked=false;
+      document.getElementById('content-offtakers').classList.remove('visible');
+    }
+  }
+}
 
 // ── CONCLUSIONS ──
 let conclusions=[];
@@ -889,24 +1020,26 @@ function showOffTab(tab){
 
 // ── NAV ──
 let currentStep=1;
-function goStep(n){document.getElementById('step'+currentStep).classList.remove('active');document.getElementById('ps'+currentStep).classList.remove('active');document.getElementById('ps'+currentStep).classList.add('done');currentStep=n;document.getElementById('step'+n).classList.add('active');document.getElementById('ps'+n).classList.add('active');document.getElementById('ps'+n).classList.remove('done');if(n===8)buildSummary();window.scrollTo(0,0);}
-function buildSummary(){const nome=document.getElementById('g-nome').value||'(sem nome)';const tipo=document.getElementById('g-tipo').value||'—';const area=document.getElementById('g-area').value||'—';const areaUtil=document.getElementById('area-util').value||'—';const subNome=document.getElementById('sub-nome').value||'—';const cap=capState==='sem'?'Sem capacidade':capState==='ok'?'Com capacidade':'—';const incOff=document.getElementById('toggle-offtakers').checked;const incPV=document.getElementById('toggle-pvs').checked;const propEl=document.getElementById('g-prop');const propVal=propEl?propEl.value:'';document.getElementById('summary-box').innerHTML=`<strong>Terreno:</strong> ${nome}${propVal?' <span style="color:var(--muted);font-size:11px;">· '+propVal+'</span>':''}<br><strong>Tipo:</strong> ${tipo} · <strong>Área útil:</strong> ${areaUtil} ha<br><strong>Subestação:</strong> ${subNome} · <strong>Capacidade:</strong> ${cap}<br><strong>Offtakers:</strong> ${incOff?(offDataRaio.length+' raio / '+offDataSE.length+' mesma SE'):'Não incluído'}<br><strong>Dimensionamento:</strong> ${incPV?'Incluído':'Não incluído'} · <strong>Conclusões:</strong> ${conclusions.filter(c=>c).length}`;}
+function goStep(n){
+  if(n===5&&!offtakersApplicable()){n=n>currentStep?6:4;}
+  document.getElementById('step'+currentStep).classList.remove('active');document.getElementById('ps'+currentStep).classList.remove('active');document.getElementById('ps'+currentStep).classList.add('done');currentStep=n;document.getElementById('step'+n).classList.add('active');document.getElementById('ps'+n).classList.add('active');document.getElementById('ps'+n).classList.remove('done');if(n===8)buildSummary();window.scrollTo(0,0);}
+function buildSummary(){const nome=document.getElementById('g-nome').value||'(sem nome)';const tipo=document.getElementById('g-tipo').value||'—';const area=document.getElementById('g-area').value||'—';const areaUtil=document.getElementById('area-util').value||'—';const subNome=document.getElementById('sub-nome').value||'—';const cap=capState==='sem'?'Sem capacidade':capState==='ok'?'Com capacidade':'—';const incOff=document.getElementById('toggle-offtakers').checked;const offNoneEl=document.getElementById('off-none');const offNone=!!(offNoneEl&&offNoneEl.checked);const incPV=document.getElementById('toggle-pvs').checked;const propEl=document.getElementById('g-prop');const propVal=propEl?propEl.value:'';let offtakersTxt='Não incluído';if(incOff)offtakersTxt=(offDataRaio.length+' raio / '+offDataSE.length+' mesma SE');if(offNone)offtakersTxt='Sem offtakers suficientes na zona';document.getElementById('summary-box').innerHTML=`<strong>Terreno:</strong> ${nome}${propVal?' <span style="color:var(--muted);font-size:11px;">· '+propVal+'</span>':''}<br><strong>Tipo:</strong> ${tipo} · <strong>Área útil:</strong> ${areaUtil} ha<br><strong>Subestação:</strong> ${subNome} · <strong>Capacidade:</strong> ${cap}<br><strong>Offtakers:</strong> ${offtakersTxt}<br><strong>Dimensionamento:</strong> ${incPV?'Incluído':'Não incluído'} · <strong>Conclusões:</strong> ${conclusions.filter(c=>c).length}`;}
 
 // ── PDF HELPERS ──
 function fmtNum(v){if(!v&&v!==0)return v;const s=String(v).replace(/,/g,'.');const n=parseFloat(s);if(isNaN(n))return v;return n.toLocaleString('pt-PT',{useGrouping:true,maximumFractionDigits:3}).replace(/\u00a0/g,' ');}
 
 function condVal(c){
   const d=condData[c.id];
-  if(c.type==='text') return d.val||'—';
-  if(c.type==='radio') return d.val||'—';
-  if(c.type==='radio-risco'){if(d.val==='Com risco')return d.risco?'Com risco — '+d.risco:'Com risco';return d.val||'—';}
-  if(c.type==='radio-fire'){if(d.val==='Com risco')return d.risco?'Com risco — '+d.risco:'Com risco';return d.val||'—';}
+  if(c.type==='text') return d.val||'Sem informação';
+  if(c.type==='radio') return d.val||'Sem informação';
+  if(c.type==='radio-risco'){if(d.val==='Com risco')return d.risco?'Com risco — '+d.risco:'Com risco';return d.val||'Sem informação';}
+  if(c.type==='radio-fire'){if(d.val==='Com risco')return d.risco?'Com risco — '+d.risco:'Com risco';return d.val||'Sem informação';}
   if(c.type==='radio-risco-multi'||c.type==='radio-fire-multi'){
     if(d.val==='Com risco'){
       if(!d.riscoEntries||!d.riscoEntries.length) return 'Com risco';
       return d.riscoEntries.map(e=>e.cat+(e.desc?' ('+e.desc+')':'')).filter(Boolean).join(' | ');
     }
-    return d.val||'—';
+    return d.val||'Sem informação';
   }
   if(c.type==='radio-area'){
     if(d.val==='Sim'){
@@ -916,9 +1049,9 @@ function condVal(c){
       if(m==='hatxt'){let r=d.area?d.area+' ha':'';if(d.simText)r+=(r?' — ':'')+d.simText;return r||'Sim';}
       return 'Sim';
     }
-    return d.val||'—';
+    return d.val||'Sem informação';
   }
-  return '—';
+  return 'Sem informação';
 }
 
 const FIRE_COLORS={
@@ -929,7 +1062,7 @@ const FIRE_COLORS={
   'Muito Alto':  {bg:'#FECACA',color:'#991B1B'},
 };
 function badge(val){
-  if(!val||val==='—') return '—';
+  if(!val||val==='—'||val==='Sem informação') return '<span style="color:var(--muted);font-style:italic;">Sem informação</span>';
   if(val==='Não'||val==='Sem risco') return `<span class="pdf-badge pdf-b-nao">${val}</span>`;
   if(val==='Sim') return `<span class="pdf-badge pdf-b-sim">${val}</span>`;
   // multi-entry: pipe separated e.g. "Alto (zona norte) | Médio (zona sul)"
@@ -999,7 +1132,10 @@ function buildPDFHtml(){
   const lng=document.getElementById('g-lng').value;
   const area=document.getElementById('g-area').value;
   const ref=document.getElementById('g-ref').value||'';
-  const tipo=document.getElementById('g-tipo').value||'—';
+  const tipoRaw=document.getElementById('g-tipo').value||'—';
+  const tipoOutroEl=document.getElementById('g-tipo-outro');
+  const tipo=(tipoRaw==='Diferente'&&tipoOutroEl&&tipoOutroEl.value.trim())?tipoOutroEl.value.trim():tipoRaw;
+  const isDC=(tipoRaw==='Data Center');
   const analista=document.getElementById('g-analista').value||'';
   const dataVal=document.getElementById('g-data').value||'';
   const areaUtil=document.getElementById('area-util').value;
@@ -1009,6 +1145,8 @@ function buildPDFHtml(){
   const capValor=document.getElementById('cap-valor').value||'';
   const capTensao=document.getElementById('cap-tensao').value||'';
   const incOff=document.getElementById('toggle-offtakers').checked;
+  const offNoneEl=document.getElementById('off-none');
+  const offNone=!!(offNoneEl&&offNoneEl.checked);
   const incPV=document.getElementById('toggle-pvs').checked;
   const pvPot=document.getElementById('pv-potencia').value||'';
   const pvEn=document.getElementById('pv-energia').value||'';
@@ -1024,8 +1162,8 @@ function buildPDFHtml(){
   const capDot=capState==='sem'?'pdf-dot-r':'pdf-dot-g';
 
   // how many offtaker pages needed
-  const showRaioPage=incOff&&(document.getElementById('pdf-show-raio')?document.getElementById('pdf-show-raio').checked:true);
-  const showSEPage=incOff&&(document.getElementById('pdf-show-se')?document.getElementById('pdf-show-se').checked:true);
+  const showRaioPage=incOff&&!offNone&&(document.getElementById('pdf-show-raio')?document.getElementById('pdf-show-raio').checked:true);
+  const showSEPage=incOff&&!offNone&&(document.getElementById('pdf-show-se')?document.getElementById('pdf-show-se').checked:true);
   const maxRows=Math.max(showRaioPage?offDataRaio.length:0, showSEPage?offDataSE.length:0);
   const offPages=(showRaioPage||showSEPage)?Math.ceil(Math.max(maxRows,1)/ROWS_PER_OFF_PAGE):0;
   const pvExtraPage = pvOnPage2 && offPages===0 ? 1 : 0;
@@ -1070,7 +1208,27 @@ function buildPDFHtml(){
 
   // PV — bottom row position changes: Rede | PV (below Rede if PV active)
   // Layout: left col = Rede+PV stacked | right col = Conclusões full height
-  const pvCardContent=incPV?`<div class="pdf-card" style="margin-top:10px;">
+  let pvCardContent='';
+  if(incPV&&isDC){
+    const dcManualToggle=document.getElementById('dc-manual-toggle');
+    const dcManualOn=!!(dcManualToggle&&dcManualToggle.checked);
+    const dcManualVal=document.getElementById('dc-potencia-manual')?document.getElementById('dc-potencia-manual').value:'';
+    const dcCalcVal=document.getElementById('dc-potencia-calc')?document.getElementById('dc-potencia-calc').value:'';
+    const dcRef=document.getElementById('dc-ref-m2mw')?(document.getElementById('dc-ref-m2mw').value||'1500'):'1500';
+    const potenciaFinal=(dcManualOn&&dcManualVal)?fmtNum(dcManualVal)+' MW':(dcCalcVal||'—');
+    const notaCalc=(dcManualOn&&dcManualVal)?'Potência definida manualmente pelo utilizador.':`Cálculo baseado na Área Útil Total (${areaUtil?fmtNum(areaUtil)+' ha':'—'}) e na referência de ${fmtNum(dcRef)} m²/MW.`;
+    pvCardContent=`<div class="pdf-card" style="margin-top:10px;">
+    <div class="pdf-card-head"><span>Dimensionamento do Data Center</span></div>
+    <div class="pdf-card-body">
+      <div class="pdf-kpi-grid">
+        <div class="pdf-kpi"><div class="pdf-kpi-val">${potenciaFinal}</div><div class="pdf-kpi-lbl">Potência Estimada</div></div>
+        <div class="pdf-kpi"><div class="pdf-kpi-val">${fmtNum(dcRef)} m²/MW</div><div class="pdf-kpi-lbl">Referência Utilizada</div></div>
+      </div>
+      <div style="font-size:8.5px;color:#6B7C6D;margin-top:6px;line-height:1.4;">${notaCalc}</div>
+    </div>
+  </div>`;
+  } else if(incPV){
+    pvCardContent=`<div class="pdf-card" style="margin-top:10px;">
     <div class="pdf-card-head"><span>Dimensionamento do Projeto</span></div>
     <div class="pdf-card-body">
       <div class="pdf-kpi-grid">
@@ -1079,9 +1237,16 @@ function buildPDFHtml(){
       </div>
       ${imgPV?`<div style="background:#F4F6F3;border:1.5px dashed #C8D0C7;border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;"><img src="${imgPV}" style="max-width:100%;max-height:200px;object-fit:contain;display:block;margin:0 auto;"></div>`:''}
     </div>
-  </div>`:''
+  </div>`;
+  }
   // If rede has images, pv goes to page 2; otherwise stays inline
   const pvHtml = pvOnPage2 ? '' : pvCardContent;
+  const offNoneCardContent = offNone ? `<div class="pdf-card" style="margin-top:10px;">
+    <div class="pdf-card-head"><span>Offtakers CER</span></div>
+    <div class="pdf-card-body">
+      <div style="font-size:9.5px;color:#1C2B1E;line-height:1.5;">Não foram identificados offtakers suficientes na zona que justifiquem o desenvolvimento de uma CER.</div>
+    </div>
+  </div>` : '';
   if(pvOnPage2) pvPage2Html = pvCardContent;
 
   const validConclusions=conclusions.filter(c=>c.trim());
@@ -1093,7 +1258,7 @@ function buildPDFHtml(){
   </div>`:'';
 
   const metaAnalista=analista?`<div class="pdf-meta-pill"><div class="pdf-dot pdf-dot-gr"></div>Analista: <strong>${analista}${dataVal?' · '+dataVal:''}</strong></div>`:'';
-  const metaOff=incOff?`<div class="pdf-meta-pill"><div class="pdf-dot pdf-dot-g"></div>Offtakers: <strong>${offDataRaio.length}+${offDataSE.length}</strong></div>`:'';
+  const metaOff=incOff?`<div class="pdf-meta-pill"><div class="pdf-dot pdf-dot-g"></div>Offtakers: <strong>${offDataRaio.length}+${offDataSE.length}</strong></div>`:(offNone?`<div class="pdf-meta-pill"><div class="pdf-dot pdf-dot-r"></div>Offtakers: <strong>Insuficientes na zona</strong></div>`:'');
   const metaPV=incPV?`<div class="pdf-meta-pill"><div class="pdf-dot pdf-dot-g"></div>Dimensionamento: <strong>Incluído</strong></div>`:'';
 
   // Offtaker pages
@@ -1183,6 +1348,7 @@ function buildPDFHtml(){
             </div>
           </div>
           ${pvHtml}
+          ${offNoneCardContent}
         </div>
         ${conclusoesHtml}
       </div>
@@ -1362,12 +1528,21 @@ async function saveToSheet() {
   const capValor = document.getElementById('cap-valor') ? document.getElementById('cap-valor').value || '' : '';
   const capTensao= document.getElementById('cap-tensao') ? document.getElementById('cap-tensao').value || '' : '';
   const prop     = document.getElementById('g-prop') ? document.getElementById('g-prop').value || '' : '';
-  const tipo     = document.getElementById('g-tipo').value || '';
+  const tipoRaw  = document.getElementById('g-tipo').value || '';
+  const tipoOutroEl2 = document.getElementById('g-tipo-outro');
+  const tipo     = (tipoRaw==='Diferente'&&tipoOutroEl2&&tipoOutroEl2.value.trim())?tipoOutroEl2.value.trim():tipoRaw;
   const estado   = document.getElementById('g-estado') ? document.getElementById('g-estado').value || 'desconhecido' : 'desconhecido';
   const estadoPreco = document.getElementById('g-estado-preco') ? document.getElementById('g-estado-preco').value || '' : '';
-  const pvPot    = document.getElementById('pv-potencia') ? document.getElementById('pv-potencia').value || '' : '';
-  const pvEn     = document.getElementById('pv-energia') ? document.getElementById('pv-energia').value || '' : '';
+  const dcManualToggleEl = document.getElementById('dc-manual-toggle');
+  const dcManualOnSave = !!(dcManualToggleEl && dcManualToggleEl.checked);
+  const dcManualValSave = document.getElementById('dc-potencia-manual') ? (document.getElementById('dc-potencia-manual').value || '') : '';
+  const dcCalcValSave = document.getElementById('dc-potencia-calc') ? (document.getElementById('dc-potencia-calc').value || '') : '';
+  const pvPot    = (tipoRaw==='Data Center')
+    ? ((dcManualOnSave && dcManualValSave) ? dcManualValSave : dcCalcValSave.replace(' MW',''))
+    : (document.getElementById('pv-potencia') ? document.getElementById('pv-potencia').value || '' : '');
+  const pvEn     = (tipoRaw==='Data Center') ? '' : (document.getElementById('pv-energia') ? document.getElementById('pv-energia').value || '' : '');
   const grupo    = document.getElementById('save-grupo').value;
+  const grupoOutros = (grupo==='Outros') ? (document.getElementById('save-outros').value || '') : '';
   const viab     = document.getElementById('save-viab').value;
   const notasSave= document.getElementById('save-notas').value || '';
 
@@ -1482,7 +1657,7 @@ async function saveToSheet() {
     nome,
     lugar:      subConc || '',
     lat, lng, area, areaUtil,
-    grupo, viab, viabMotivo: '',
+    grupo, grupoOutros, viab, viabMotivo: '',
     estado, estadoPreco,
     subNome, subConc, subDist,
     capEstado:  capState || '',
@@ -1499,7 +1674,8 @@ async function saveToSheet() {
     analista, dataAnalise: dataVal,
     notas: notasSave,
     notasInternas: document.getElementById('save-notas-internas') ? document.getElementById('save-notas-internas').value || '' : '',
-    prop, tipo,
+    prop, tipo, tipoOutro: document.getElementById('g-tipo-outro') ? document.getElementById('g-tipo-outro').value || '' : '',
+    dcRef: document.getElementById('dc-ref-m2mw') ? document.getElementById('dc-ref-m2mw').value || '' : '',
     pdfUrl: pdfUrl || (window._editId ? (window._editPdfUrl || '') : ''),
     fotoUrl,
   };
@@ -1564,6 +1740,10 @@ async function preloadFromSheet() {
     setVal('g-ref',  t.cod);
     setVal('g-analista', t.analista);
     setVal('g-data', t.dataAnalise);
+    setVal('g-prop', t.prop);
+    setVal('g-tipo', t.tipo);
+    setVal('g-tipo-outro', t.tipoOutro);
+    onTipoChange(); // Trigger visibility changes based on tipo
     if (t.estado && document.getElementById('g-estado')) {
       document.getElementById('g-estado').value = t.estado;
       toggleEstadoPreco();
@@ -1678,6 +1858,13 @@ async function preloadFromSheet() {
     // ── PASSO 6: DIMENSIONAMENTO ──
     setVal('pv-potencia', t.pvPotencia);
     setVal('pv-energia',  t.pvEnergia);
+    if (t.dcRef && document.getElementById('dc-ref-m2mw')) {
+      setVal('dc-ref-m2mw', t.dcRef);
+    }
+    // Trigger DC power calculation if Data Center
+    if (t.tipo === 'Data Center' && typeof calcDCPower === 'function') {
+      setTimeout(() => calcDCPower(), 300);
+    }
 
     // ── PASSO 7: CONCLUSÕES ──
     if (t.conclusoes) {
@@ -1685,6 +1872,15 @@ async function preloadFromSheet() {
       conclusions = parts.length ? parts : [''];
       renderConclusions && renderConclusions();
     }
+
+    // ── GUARDAR EN LISTA ──
+    setVal('save-grupo', t.grupo);
+    setVal('save-viab', t.viab);
+    if (t.grupoOutros) {
+      setVal('save-outros', t.grupoOutros);
+    }
+    onSaveGrupoChange(); // Trigger visibility of save-outros field if needed
+    setVal('save-notas', t.notas);
 
     // Preload notasInternas
     if (t.notasInternas) {
