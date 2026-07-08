@@ -598,8 +598,8 @@ async function loadFromSheet() {
           if (v instanceof Date || (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}T/))) return '';
           return (v || v === 0) ? String(v) : '';
         })(r.areaUtil),
-        grupo:        r.grupo || 'CER',
-        grupoOutros:  r.grupoOutros || r.tipoOutro || '',
+        grupo:        normalizeGrupo(r.grupo).code,
+        grupoOutros:  r.grupoOutros || r.tipoOutro || normalizeGrupo(r.grupo).outros,
         viab:         r.viab || 'viavel',
         viabMotivo:   r.viabMotivo || '',
         fonte:        r.fonte || r.prop || '',
@@ -659,6 +659,22 @@ const RCLS={venda:'venda',arrendo:'arrendo',venda_arrendo:'venda',desconhecido:'
 const VLABEL={viavel:'✅ Viável',condicionado:'⚠ Condicionado',pendente:'🕐 Pendente',nao_viavel:'✕ Não Viável'};
 const VCLS={viavel:'viavel',condicionado:'condicionado',pendente:'pendente',nao_viavel:'nao_viavel'};
 function grupoLabel(t){ return t.grupo==='OUTROS' ? (t.grupoOutros||'Outros') : (GLABEL[t.grupo]||t.grupo); }
+// Normalizes whatever raw "grupo" value comes from the Sheet (ficha.html may send
+// codes like "DC" or literal labels like "Data Center") into the canonical codes
+// CER / UPP / DC / OUTROS used throughout lista.html. Anything unrecognized is
+// treated as OUTROS, preserving the original text for display.
+function normalizeGrupo(raw){
+  if(!raw) return {code:'CER', outros:''};
+  var v=String(raw).trim();
+  var vu=v.toUpperCase();
+  if(vu==='CER') return {code:'CER', outros:''};
+  if(vu==='UPP'||vu==='BSP'||vu==='UPP/BSP'||vu==='UPP / BSP'||vu==='UPP-BSP') return {code:'UPP', outros:''};
+  if(vu==='DC'||vu==='DATA CENTER'||vu==='DATACENTER'||vu==='DATA_CENTER') return {code:'DC', outros:''};
+  if(vu==='OUTROS'||vu==='OUTRO'||vu==='DIFERENTE') return {code:'OUTROS', outros:''};
+  if(vu==='PEND'||vu==='BAD') return {code:'OUTROS', outros:''}; // legacy categories no longer used
+  // Unknown value (e.g. free text from "Diferente"): keep as Outros with original text
+  return {code:'OUTROS', outros:v};
+}
 
 const DB_VERSION = 'empty_v1';;;;;
 const DC_TERRENOS = [];
