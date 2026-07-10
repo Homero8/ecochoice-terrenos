@@ -274,7 +274,7 @@ input,select,textarea{-webkit-appearance:none;border-radius:7px;}
     <table class="list-tbl">
       <thead><tr>
         <th>Cód.</th><th>Terreno</th><th>Tipo</th><th>Viabilidade</th>
-        <th>Via</th><th>Localização</th><th>Coordenadas</th><th>Estado</th><th></th>
+        <th>Localização</th><th>Coordenadas</th><th></th>
       </tr></thead>
       <tbody id="listBody"></tbody>
     </table>
@@ -437,7 +437,7 @@ input,select,textarea{-webkit-appearance:none;border-radius:7px;}
         <div class="fsec" style="color:var(--upp)">🏭 UPP / BSP — Dados Específicos</div>
         <div class="fg">
           <div class="fg-item"><label>CAPACIDADE UPP (MW)</label><input id="f-upp-num" placeholder="ex: 3 UPP"></div>
-          <div class="fg-item"><label>PRODUÇÃO ESTIMADA (GWh)</label><input id="f-upp-mw" placeholder="ex: 3"></div>
+          <div class="fg-item"><label>PRODUÇÃO ESTIMADA (MWh/ano)</label><input id="f-upp-mw" placeholder="ex: 3"></div>
           <div class="fg-item full"><label>NOTAS UPP</label><textarea id="f-upp-notas"></textarea></div>
         </div>
       </div>
@@ -722,7 +722,7 @@ function render(){
     return mf&&mv&&ms;
   });
   var tbody=document.getElementById('listBody');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="9" class="empty-list">Nenhum terreno encontrado</td></tr>`;return;}
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="7" class="empty-list">Nenhum terreno encontrado</td></tr>`;return;}
   tbody.innerHTML=list.map(function(t,i){
     const gc=GCLS[t.grupo]||'pend';
     const rc=RCLS[t.regime]||'desconhecido';
@@ -738,10 +738,8 @@ function render(){
       <td class="td-name">${t.nome}</td>
       <td><span class="badge badge-${gc}">${grupoLabel(t)}</span></td>
       <td>${vc?`<span class="badge badge-${vc}">${vl}</span>`:`<span style="color:var(--muted2);font-size:11px">—</span>`}</td>
-      <td class="td-via">${t.fonte?'👤 '+t.fonte:'—'}</td>
       <td class="td-loc">${t.lugar||'—'}</td>
       <td class="td-coords">${t.lat&&(t.lng||t.lon)?t.lat+', '+(t.lng||t.lon):'—'}</td>
-      <td>${rl?`<span class="badge badge-${rc}">${rl}</span>`:`<span style="color:var(--muted2);font-size:11px">—</span>`}</td>
       <td class="td-arrow">›</td>
     </tr>`;
   }).join('')
@@ -822,25 +820,25 @@ function showDetail(id){window._currentTereno=db().find(function(x){return x.id=
   // specific section
   let specHtml='';
   if(t.grupo==='CER'){
-    specHtml=`<div class="section">
+    var _cerCap=(String(t.pvPotencia||sp.cerMW||'').trim())?`<div class="field">${fl(t,'cap_cer','Capacidade CER (MW)')}<div class="fv mono">${fmtNum(t.pvPotencia||sp.cerMW)}</div></div>`:'';
+    var _cerProd=(String(t.pvEnergia||sp.cerProd||'').trim())?`<div class="field">${fl(t,'prod_cer','Produção Estimada (MWh/ano)')}<div class="fv mono">${fmtProd(t.pvEnergia||sp.cerProd)}</div></div>`:'';
+    var _cerCons=(t.consumoRaio||t.consumoSE||sp.consumo)?`<div class="field full">${fl(t,'consumo_raio','Consumo Est. Offtakers — Raio 4km')}<div class="fv mono">${fmtProd(t.consumoRaio||sp.consumo)} MWh/ano</div></div>`:'';
+    var _cerConsSE=t.consumoSE?`<div class="field full">${fl(t,'consumo_se','Consumo Est. Offtakers — Mesma SE')}<div class="fv mono">${fmtProd(t.consumoSE)} MWh/ano</div></div>`:'';
+    var _cerOft=sp.offtakers?`<div class="field">${fl(t,'n_oft','Nº Offtakers')}<div class="fv mono">${sp.offtakers}</div></div>`:'';
+    var _cerAnc=sp.ancora?`<div class="field full">${fl(t,'ancora','Clientes Âncora')}<div class="fv">${sp.ancora}</div></div>`:'';
+    var _cerNotas=sp.notas?`<div class="field full">${fl(t,'notas_cer','Notas CER')}<div class="fv" style="font-size:12px">${sp.notas}</div></div>`:'';
+    var _cerInner=_cerCap+_cerProd+_cerCons+_cerConsSE+_cerOft+_cerAnc+_cerNotas;
+    specHtml=_cerInner?`<div class="section">
       <div class="sec-ttl" style="color:var(--cer);cursor:pointer" onclick="editSecTitle(this,'cer')" title="Clica para editar">⚡ CER — Dados Específicos <span style="font-size:9px;opacity:.4">✎</span></div>
-      <div class="f2">
-        <div class="field">${fl(t,'cap_cer','Capacidade CER (MW)')}<div class="fv mono">${fmtNum(t.pvPotencia||sp.cerMW)||'—'}</div></div>
-        <div class="field">${fl(t,'prod_cer','Produção Estimada (MWh/ano)')}<div class="fv mono">${fmtProd(t.pvEnergia||sp.cerProd)}</div></div>
-        ${(t.consumoRaio||t.consumoSE||sp.consumo)?`<div class="field full">${fl(t,'consumo_raio','Consumo Est. Offtakers — Raio 4km')}<div class="fv mono">${fmtProd(t.consumoRaio||sp.consumo)} MWh/ano</div></div>`:''}
-        ${t.consumoSE?`<div class="field full">${fl(t,'consumo_se','Consumo Est. Offtakers — Mesma SE')}<div class="fv mono">${fmtProd(t.consumoSE)} MWh/ano</div></div>`:''}
-        ${sp.offtakers?`<div class="field">${fl(t,'n_oft','Nº Offtakers')}<div class="fv mono">${sp.offtakers}</div></div>`:''}
-        ${sp.ancora?`<div class="field full">${fl(t,'ancora','Clientes Âncora')}<div class="fv">${sp.ancora}</div></div>`:''}
-        ${sp.notas?`<div class="field full">${fl(t,'notas_cer','Notas CER')}<div class="fv" style="font-size:12px">${sp.notas}</div></div>`:''}
-      </div></div>`;
+      <div class="f2">${_cerInner}</div></div>`:'';
   } else if(t.grupo==='UPP'){
-    specHtml=`<div class="section">
+    var _uppCap=(String(t.pvPotencia||sp.uppNum||'').trim())?`<div class="field">${fl(t,'cap_upp','Capacidade UPP (MW)')}<div class="fv mono">${fmtNum(t.pvPotencia||sp.uppNum)}</div></div>`:'';
+    var _uppProd=(String(t.pvEnergia||sp.uppMW||'').trim())?`<div class="field">${fl(t,'prod_upp','Produção Estimada (MWh/ano)')}<div class="fv mono">${fmtProd(t.pvEnergia||sp.uppMW)}</div></div>`:'';
+    var _uppNotas=sp.notas?`<div class="field full">${fl(t,'notas_upp','Notas UPP')}<div class="fv" style="font-size:12px">${sp.notas}</div></div>`:'';
+    var _uppInner=_uppCap+_uppProd+_uppNotas;
+    specHtml=_uppInner?`<div class="section">
       <div class="sec-ttl" style="color:var(--upp);cursor:pointer" onclick="editSecTitle(this,'upp')" title="Clica para editar">🏭 UPP / BSP — Dados Específicos <span style="font-size:9px;opacity:.4">✎</span></div>
-      <div class="f2">
-        <div class="field">${fl(t,'cap_upp','Capacidade UPP (MW)')}<div class="fv mono">${fmtNum(sp.uppNum)||'—'}</div></div>
-        <div class="field">${fl(t,'prod_upp','Produção Estimada (GWh)')}<div class="fv mono">${fmtProd(sp.uppMW)}</div></div>
-        ${sp.notas?`<div class="field full">${fl(t,'notas_upp','Notas UPP')}<div class="fv" style="font-size:12px">${sp.notas}</div></div>`:''}
-      </div></div>`;
+      <div class="f2">${_uppInner}</div></div>`:'';
   } else if(t.grupo==='OUTROS'){
     specHtml=`<div class="section">
       <div class="sec-ttl" style="color:var(--pend);cursor:pointer" onclick="editSecTitle(this,'outros')" title="Clica para editar">📋 Outros <span style="font-size:9px;opacity:.4">✎</span></div>
@@ -1217,8 +1215,8 @@ function exportPDF(){
     sh='<h3 style="font-size:10px;letter-spacing:.1em;color:#6ab23a;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">ENERGIA</h3><table style="width:100%">'+rw('Capacidade DC',cap)+rw('SE MAT',t.subMAT)+rw('SE AT',t.subAT)+rw('Cap. SE AT',t.subATCap)+rw('Barramento',t.subATBarr)+rw('Nível Pot.',t.nivPotLic)+rw('Posto Transf.',t.pt)+rw('CPE',t.cpe)+rw('Aumento Pot.',t.aumentoPot)+'</table>';
     if(t.agua||t.aguaFonte)sh+='<h3 style="font-size:10px;letter-spacing:.1em;color:#1a4a7a;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">ÁGUA</h3><table>'+rw('Fornecimento',t.agua)+rw('Fonte',t.aguaFonte)+'</table>';
     sh+='<h3 style="font-size:10px;letter-spacing:.1em;color:#444;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">CONDICIONANTES</h3><table style="width:100%">'+rw('Perigosidade Incêndio',dc.incendio)+rw('Risco Inundação',dc.inundacao)+rw('REN',dc.ren)+rw('RAN',dc.ran)+rw('ZEC/ZPE',dc.zec)+rw('Uso do Solo',dc.usoSolo)+rw('Sobreiros',dc.sobreiros)+rw('Azinheiras',dc.azinheiras)+rw('Linhas Água',dc.linhasAgua)+rw('Corredor Ecológico',dc.corridorEco)+rw('FGC',dc.fgc)+'</table>';
-  }else if(t.grupo==='CER'){sh='<h3 style="font-size:10px;letter-spacing:.1em;color:#4e8a28;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">CER</h3><table>'+rw('Capacidade (MW)',sp.cerMW)+rw('Produção (MWh/ano)',sp.cerProd)+rw('Consumo Offtakers',sp.consumo)+rw('Nº Offtakers',sp.offtakers)+rw('Clientes Âncora',sp.ancora)+rw('SE MT',t.se)+rw('Cap. SE',t.seCap)+rw('Dist. Ligação SE',t.ligacao)+'</table>';if(typeof t.cond==='string')sh+='<p style="font-size:11px;margin-top:6px">'+t.cond+'</p>';
-  }else if(t.grupo==='UPP'){sh='<h3 style="font-size:10px;letter-spacing:.1em;color:#7a3b00;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">UPP/BSP</h3><table>'+rw('Capacidade UPP (MW)',sp.uppNum)+rw('Produção Estimada (GWh)',sp.uppMW)+rw('SE MT',t.se)+rw('Cap. SE',t.seCap)+rw('Dist. Ligação SE',t.ligacao)+'</table>';if(typeof t.cond==='string')sh+='<p style="font-size:11px;margin-top:6px">'+t.cond+'</p>';
+  }else if(t.grupo==='CER'){sh='<h3 style="font-size:10px;letter-spacing:.1em;color:#4e8a28;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">CER</h3><table>'+rw('Capacidade (MW)',t.pvPotencia||sp.cerMW)+rw('Produção (MWh/ano)',t.pvEnergia||sp.cerProd)+rw('Consumo Offtakers',sp.consumo)+rw('Nº Offtakers',sp.offtakers)+rw('Clientes Âncora',sp.ancora)+rw('SE MT',t.se)+rw('Cap. SE',t.seCap)+rw('Dist. Ligação SE',t.ligacao)+'</table>';if(typeof t.cond==='string')sh+='<p style="font-size:11px;margin-top:6px">'+t.cond+'</p>';
+  }else if(t.grupo==='UPP'){sh='<h3 style="font-size:10px;letter-spacing:.1em;color:#7a3b00;text-transform:uppercase;margin:12px 0 5px;border-bottom:1px solid #eee;padding-bottom:3px">UPP/BSP</h3><table>'+rw('Capacidade UPP (MW)',t.pvPotencia||sp.uppNum)+rw('Produção Estimada (MWh/ano)',t.pvEnergia||sp.uppMW)+rw('SE MT',t.se)+rw('Cap. SE',t.seCap)+rw('Dist. Ligação SE',t.ligacao)+'</table>';if(typeof t.cond==='string')sh+='<p style="font-size:11px;margin-top:6px">'+t.cond+'</p>';
   }else{if(t.se)sh='<table>'+rw('SE MT',t.se)+rw('Cap. SE',t.seCap)+'</table>';if(typeof t.cond==='string')sh+='<p style="font-size:11px;margin-top:6px">'+t.cond+'</p>';if(sp.cond)sh+='<p style="font-size:11px;color:#c0392b;margin-top:4px">⚠ '+sp.cond+'</p>';if(sp.motivo)sh+='<p style="font-size:11px;color:#c0392b;margin-top:4px">Motivo: '+sp.motivo+'</p>';}
   var obs=(t.obs||'').split('\\n').filter(Boolean);
   var H='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@page{size:A4 landscape;margin:14mm 16mm;}body{font-family:Arial,sans-serif;color:#2d2d2b;margin:0;}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;border-bottom:2px solid #6ab23a;padding-bottom:8px;}.content{display:grid;grid-template-columns:260px 1fr;gap:18px;}.left img{width:100%;border-radius:5px;border:1px solid #ddd;}.mt td{padding:3px 6px 3px 0;font-size:10px;vertical-align:top;}.path{margin-top:7px;background:#fffdf7;border-left:3px solid #c4960a;padding:4px 7px;font-size:8px;font-family:monospace;color:#888;word-break:break-all;}.obs{background:#fffdf7;border-left:3px solid #c4960a;padding:7px 9px;font-size:10px;line-height:1.5;margin-top:8px;}.footer{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-between;border-top:1px solid #eee;padding:4px 16mm;font-size:8px;color:#aaa;}</style></head><body>';
