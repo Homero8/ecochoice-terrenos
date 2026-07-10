@@ -620,6 +620,7 @@ async function loadFromSheet() {
         condicionantes: r.condicionantes || '',
         pvPotencia:   r.pvPotencia || '',
         pvEnergia:    r.pvEnergia || '',
+        dcRef:        r.dcRef || '',
         conclusoes:   r.conclusoes || '',
         analista:     r.analista || '',
         dataAnalise:  r.dataAnalise || '',
@@ -848,10 +849,13 @@ function showDetail(id){window._currentTereno=db().find(function(x){return x.id=
       </div></div>`;
   } else if(t.grupo==='DC'){
     var _capDC='—';
-    if(t.capDCTipo==='estimada'&&t.areaImpl&&parseFloat(t.areaImpl.replace(',','.'))){var _a=parseFloat(t.areaImpl.replace(',','.'));var _r=parseFloat(t.capDCRatio||'1500');_capDC=Math.ceil(_a*10000/_r)+' MW <small style="color:var(--muted);font-size:10px">(est. · '+_r+' m²/MW)</small>';}
+    if(t.pvPotencia&&String(t.pvPotencia).trim()){var _mw=String(t.pvPotencia).replace(/\s*MW/i,'').trim();var _refNote=t.dcRef?' <small style="color:var(--muted);font-size:10px">(est. · '+t.dcRef+' m²/MW)</small>':'';_capDC=(fmtNum(_mw)||_mw)+' MW'+_refNote;}
+    else if(t.capDCTipo==='estimada'&&t.areaImpl&&parseFloat(t.areaImpl.replace(',','.'))){var _a=parseFloat(t.areaImpl.replace(',','.'));var _r=parseFloat(t.capDCRatio||'1500');_capDC=Math.ceil(_a*10000/_r)+' MW <small style="color:var(--muted);font-size:10px">(est. · '+_r+' m²/MW)</small>';}
     else if(t.capDCTipo==='licenciada'&&t.capDCVal){_capDC=t.capDCVal+' MW <small style="color:var(--muted);font-size:10px">(lic.)</small>';}
     var dc=t.cond&&typeof t.cond==='object'?t.cond:{};
     function dcF(l,v){if(!v||v==='')return'';var c=(v==='Não')?'var(--cer)':(v==='Sim'||v==='Não'?'var(--bad)':'var(--text)');if(v==='Não')c='var(--eco)';if(v!=='Sim'&&v!=='Não')c='var(--text)';return'<div class="field"><div class="fl">'+l+'</div><div class="fv" style="font-size:12px;color:'+c+'">'+v+'</div></div>';}
+    var _dcCondFields=dcF('Perigosidade Incêndio',dc.incendio)+dcF('Risco Inundação',dc.inundacao)+dcF('REN',dc.ren)+dcF('RAN',dc.ran)+dcF('ZEC / ZPE',dc.zec)+(dc.usoSolo?`<div class="field full">${fl(t,'uso_solo','Uso do Solo')}<div class="fv" style="font-size:12px">${dc.usoSolo}</div></div>`:'')+dcF('Sobreiros',dc.sobreiros)+dcF('Azinheiras',dc.azinheiras)+dcF('Linhas de Água',dc.linhasAgua)+((dc.corridorEco&&dc.corridorEco!=='Não')?`<div class="field full">${fl(t,'corredor_eco','Corredor Ecológico')}<div class="fv" style="font-size:12px;color:var(--bad)">${dc.corridorEco}</div></div>`:dcF('Corredor Ecológico',dc.corridorEco))+dcF('Marco Geodésico',dc.marcoGeo)+dcF('Pontos Arqueológicos',dc.pontosArq)+dcF('FGC',dc.fgc)+dcF('Rede Viária Florestal',dc.redeViaria)+dcF('Rede Pontos Água',dc.redePontos);
+    var _dcCondList=condTags?`<div class="field full"><ul style="margin:4px 0;padding-left:16px;line-height:1.8;color:#4a5c4a">${condTags}</ul></div>`:'';
     specHtml=`
       <div class="section"><div class="sec-ttl" style="color:var(--dc);cursor:pointer" onclick="editSecTitle(this,'energia')" title="Clica para editar">⚡ Energia <span style="font-size:9px;opacity:.4">✎</span></div><div class="f2">
         <div class="field full">${fl(t,'cap_dc_val','Capacidade do Data Center')}<div class="fv">${_capDC}</div></div>
@@ -868,16 +872,7 @@ function showDetail(id){window._currentTereno=db().find(function(x){return x.id=
         ${t.agua?`<div class="field">${fl(t,'forn_agua','Fornecimento')}<div class="fv">${t.agua}</div></div>`:''}
         ${t.aguaFonte?`<div class="field full">${fl(t,'fonte_agua','Fonte')}<div class="fv">${t.aguaFonte}</div></div>`:''}
       </div></div>`:''}
-      <div class="section"><div class="sec-ttl" style="cursor:pointer" onclick="editSecTitle(this,'cond')" title="Clica para editar">🌿 Condicionantes Ambientais <span style="font-size:9px;opacity:.4">✎</span></div><div class="f2">
-        ${dcF('Perigosidade Incêndio',dc.incendio)}${dcF('Risco Inundação',dc.inundacao)}
-        ${dcF('REN',dc.ren)}${dcF('RAN',dc.ran)}${dcF('ZEC / ZPE',dc.zec)}
-        ${dc.usoSolo?`<div class="field full">${fl(t,'uso_solo','Uso do Solo')}<div class="fv" style="font-size:12px">${dc.usoSolo}</div></div>`:''}
-        ${dcF('Sobreiros',dc.sobreiros)}${dcF('Azinheiras',dc.azinheiras)}
-        ${dcF('Linhas de Água',dc.linhasAgua)}
-        ${dc.corridorEco&&dc.corridorEco!=='Não'?`<div class="field full">${fl(t,'corredor_eco','Corredor Ecológico')}<div class="fv" style="font-size:12px;color:var(--bad)">${dc.corridorEco}</div></div>`:dcF('Corredor Ecológico',dc.corridorEco)}
-        ${dcF('Marco Geodésico',dc.marcoGeo)}${dcF('Pontos Arqueológicos',dc.pontosArq)}
-        ${dcF('FGC',dc.fgc)}${dcF('Rede Viária Florestal',dc.redeViaria)}${dcF('Rede Pontos Água',dc.redePontos)}
-      </div></div>`;
+      ${(condTags||_dcCondFields.trim())?`<div class="section"><div class="sec-ttl" style="color:var(--eco);cursor:pointer" onclick="editSecTitle(this,'cond')" title="Clica para editar">🌿 Condicionantes Ambientais <span style="font-size:9px;opacity:.4">✎</span></div><div class="f2">${_dcCondList}${_dcCondFields}</div></div>`:''}`;
   }
 
   // obs/notas box — split by newlines for formatting
@@ -891,7 +886,7 @@ function showDetail(id){window._currentTereno=db().find(function(x){return x.id=
 
   // LEFT
   var _capDCLeft='';
-  if(t.grupo==='DC'){if(t.capDCTipo==='estimada'&&t.areaImpl&&parseFloat(t.areaImpl.replace(',','.'))){_capDCLeft=Math.ceil(parseFloat(t.areaImpl.replace(',','.'))*10000/parseFloat(t.capDCRatio||'1500'))+' MW';}else if(t.capDCVal){_capDCLeft=t.capDCVal+' MW';}}
+  if(t.grupo==='DC'){if(t.pvPotencia&&String(t.pvPotencia).trim()){var _mwL=String(t.pvPotencia).replace(/\s*MW/i,'').trim();_capDCLeft=(fmtNum(_mwL)||_mwL)+' MW';}else if(t.capDCTipo==='estimada'&&t.areaImpl&&parseFloat(t.areaImpl.replace(',','.'))){_capDCLeft=Math.ceil(parseFloat(t.areaImpl.replace(',','.'))*10000/parseFloat(t.capDCRatio||'1500'))+' MW';}else if(t.capDCVal){_capDCLeft=t.capDCVal+' MW';}}
   document.getElementById('det-left').innerHTML=`
     ${leftImg}
     <div class="det-meta">
@@ -926,15 +921,15 @@ function showDetail(id){window._currentTereno=db().find(function(x){return x.id=
       ${t.prop?`<div class="det-sub">🏠 ${t.prop}</div>`:''}
       ${t.lugar?`<div class="det-sub">📍 ${t.lugar}</div>`:''}
     </div>
-    ${(t.ligacao||condTags||t.seCap||t.seCapNota||t.condRanNota)?`
+    ${(t.subNome||t.se||t.subDist||t.ligacao||condTags||t.seCap||t.seCapNota||t.condRanNota)?`
     <div class="section">
-      <div class="sec-ttl" style="cursor:pointer" onclick="editSecTitle(this,'infra')" title="Clica para editar">Infraestrutura & Condicionantes <span style="font-size:9px;opacity:.4">✎</span></div>
+      <div class="sec-ttl" style="${t.grupo==='DC'?'color:var(--dc);':''}cursor:pointer" onclick="editSecTitle(this,'infra')" title="Clica para editar">${t.grupo==='DC'?'⚡ Infraestrutura Elétrica':'Infraestrutura & Condicionantes'} <span style="font-size:9px;opacity:.4">✎</span></div>
       <div class="f2">
         ${(t.subNome||t.se)?`<div class="field">${fl(t,'sub_mt','Subestação MT')}<div class="fv">${t.subNome||t.se}</div></div>`:''}
         ${(t.capSE||t.seCap)?`<div class="field">${fl(t,'cap_se_full','Capacidade SE')}<div class="fv ${(t.capSE||t.seCap)==='Sem capacidade'?'warn':'good'}">${fmtCapSE(t.capSE||t.seCap)}</div></div>`:''}
         ${t.seCapNota?`<div class="field full" style="background:#fff8e8;border:1px solid #e8d090"><div class="fl" style="color:#8a5c00">⚠ Nota Subestação</div><div class="fv warn" style="font-size:12px">${t.seCapNota}</div></div>`:''}
         ${(t.subDist||t.ligacao)?`<div class="field full">${fl(t,'dist_ligacao','Dist. Ponto de Ligação SE')}<div class="fv">${t.subDist||t.ligacao}</div></div>`:''}
-        ${condTags?`<div class="field full">${fl(t,'cond_amb','Condicionantes Ambientais')}<ul style="margin:4px 0;padding-left:16px;line-height:1.8">${condTags}</ul></div>`:((t.subNome||t.se||t.capSE||t.seCap||t.capValor||t.tipologia)?`<div class="field full">${fl(t,'cond_amb','Condicionantes Ambientais')}<div class="fv" style="color:var(--muted);font-style:italic;font-size:12px">✓ Sem condicionantes ambientais</div></div>`:'')}
+        ${t.grupo!=='DC'?(condTags?`<div class="field full">${fl(t,'cond_amb','Condicionantes Ambientais')}<ul style="margin:4px 0;padding-left:16px;line-height:1.8">${condTags}</ul></div>`:((t.subNome||t.se||t.capSE||t.seCap||t.capValor||t.tipologia)?`<div class="field full">${fl(t,'cond_amb','Condicionantes Ambientais')}<div class="fv" style="color:var(--muted);font-style:italic;font-size:12px">✓ Sem condicionantes ambientais</div></div>`:'')):''}
         ${t.condRanNota?`<div class="field full" style="background:#fff8e8;border:1px solid #e8d090"><div class="fl" style="color:#8a5c00">⚠ Nota Condicionante</div><div class="fv warn" style="font-size:12px">${t.condRanNota}</div></div>`:''}
       </div>
     </div>`:''}
