@@ -68,6 +68,18 @@ textarea{resize:vertical;min-height:90px;}
 .cap-btn{flex:1;padding:11px;border-radius:7px;border:2px solid var(--borda);text-align:center;cursor:pointer;font-size:12px;font-weight:700;background:#fff;color:var(--muted);transition:all .2s;}
 .cap-btn.sel-sem{background:#FEE2E2;color:#991B1B;border-color:#FECACA;}
 .cap-btn.sel-ok{background:#DCFCE7;color:#15803D;border-color:#BBF7D0;}
+/* rede mode toggles (Data Center: MAT/AT/MT) */
+.rede-mode-toggle{display:flex;gap:8px;margin:4px 0 14px;}
+.rede-mode-btn{flex:1;padding:9px 6px;border-radius:7px;border:2px solid var(--borda);text-align:center;cursor:pointer;font-size:12px;font-weight:700;background:#fff;color:var(--muted);transition:all .2s;line-height:1.3;}
+.rede-mode-btn small{display:block;font-size:8px;font-weight:600;letter-spacing:0.3px;opacity:0.75;margin-top:1px;}
+.rede-mode-btn.sel{background:#DCFCE7;color:#15803D;border-color:#BBF7D0;}
+.rede-sub-block{border:1px solid var(--borda);border-radius:8px;padding:14px;margin-bottom:12px;background:var(--fundo);}
+.rede-sub-block-title{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--verde);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.rede-sub-block-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);}
+/* input com unidade fixa (kV / MVA) */
+.input-unit{position:relative;display:flex;align-items:center;width:100%;}
+.input-unit input{padding-right:46px;width:100%;}
+.input-unit .unit-suffix{position:absolute;right:12px;font-size:12px;font-weight:700;color:var(--muted);pointer-events:none;}
 /* images */
 .img-upload-area{border:2px dashed var(--borda);border-radius:8px;padding:18px;text-align:center;cursor:pointer;background:var(--fundo);transition:all .2s;margin-bottom:10px;}
 .img-upload-area:hover{border-color:var(--verde);background:#fff;}
@@ -297,19 +309,61 @@ textarea{resize:vertical;min-height:90px;}
       <div class="step-card-head"><div class="step-num">4</div><span>Ligação à Rede Elétrica</span></div>
       <div class="step-body">
         <div class="info-note"><div class="link-row"><span>Consulte:</span><a class="link-helper" href="https://e-redes.maps.arcgis.com/apps/webappviewer/index.html" target="_blank">↗ e-redes Mapa</a><a class="link-helper" href="https://www.e-redes.pt/pt-pt/rede/informacao-da-rede/capacidade-de-recepcao-da-rede" target="_blank">↗ Capacidade RND</a><a class="link-helper" id="rede-link-at" href="https://datahub.ren.pt/pt/redes/rede-eletrica/" target="_blank" style="display:none;">↗ Rede Elétrica AT (REN)</a></div></div>
-        <div class="form-grid">
-          <div class="field"><label>Nome da Subestação</label><input type="text" id="sub-nome" placeholder="Ex: MEM MARTINS"></div>
-          <div class="field"><label>Concelho</label><input type="text" id="sub-concelho" placeholder="Ex: Sintra"></div>
-          <div class="field form-full"><label>Distância ao ponto de ligação</label><input type="text" id="sub-dist" placeholder="Ex: 250 m / 1,2 km"></div>
+
+        <!-- DATA CENTER: seletor de níveis de tensão (MAT / AT / MT) -->
+        <div id="rede-dc-toggles" style="display:none;">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:4px;">Níveis de ligação a analisar</label>
+          <div class="rede-mode-toggle">
+            <div class="rede-mode-btn" id="rede-btn-mat" onclick="toggleRedeMode('mat')">MAT<small>Muito Alta Tensão</small></div>
+            <div class="rede-mode-btn" id="rede-btn-at" onclick="toggleRedeMode('at')">AT<small>Alta Tensão</small></div>
+            <div class="rede-mode-btn" id="rede-btn-mt" onclick="toggleRedeMode('mt')">MT<small>Média Tensão</small></div>
+          </div>
         </div>
-        <div style="margin-top:14px;">
-          <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Capacidade Disponível</label>
-          <div class="cap-toggle"><div class="cap-btn" id="cap-sem" onclick="setCap('sem')">✕ Sem capacidade</div><div class="cap-btn" id="cap-ok" onclick="setCap('ok')">✓ Com capacidade</div></div>
-        </div>
-        <div id="cap-detail" style="display:none;margin-top:12px;">
+
+        <!-- BLOCO MAT (só Data Center) -->
+        <div id="rede-mat-block" class="rede-sub-block" style="display:none;">
+          <div class="rede-sub-block-title">MAT — Muito Alta Tensão</div>
           <div class="form-grid">
-            <div class="field"><label>Capacidade disponível (MVA)</label><input type="number" id="cap-valor" placeholder="Ex: 28.4" step="0.1"></div>
-            <div class="field"><label>Nível de tensão</label><select id="cap-tensao"><option value="">Selecionar...</option><option>10 kV</option><option>15 kV</option><option>30 kV</option><option>60 kV</option></select></div>
+            <div class="field"><label>Nome da Subestação</label><input type="text" id="mat-sub-nome" placeholder="Ex: FANHÕES"></div>
+            <div class="field"><label>Distância do terreno à subestação</label><input type="text" id="mat-dist" placeholder="Ex: 800 m / 2,4 km"></div>
+          </div>
+        </div>
+
+        <!-- BLOCO AT (só Data Center) -->
+        <div id="rede-at-block" class="rede-sub-block" style="display:none;">
+          <div class="rede-sub-block-title">AT — Alta Tensão</div>
+          <div class="form-grid">
+            <div class="field"><label>Nome da Subestação</label><input type="text" id="at-sub-nome" placeholder="Ex: MEM MARTINS"></div>
+            <div class="field"><label>Distância ao ponto de ligação</label><input type="text" id="at-dist" placeholder="Ex: 350 m / 1,1 km"></div>
+            <div class="field"><label>Barramento</label><input type="text" id="at-barramento" placeholder="Ex: Barramento 1"></div>
+            <div class="field"><label>Nível de tensão do barramento</label><div class="input-unit"><input type="number" id="at-barramento-kv" placeholder="Ex: 60" step="0.1"><span class="unit-suffix">kV</span></div></div>
+            <div class="field form-full">
+              <label>Capacidade de Receção do Grupo AT</label>
+              <div class="cap-toggle"><div class="cap-btn" id="cap-at-sem" onclick="setCapAT('sem')">✕ Sem capacidade</div><div class="cap-btn" id="cap-at-ok" onclick="setCapAT('ok')">✓ Com capacidade</div></div>
+              <div id="cap-at-detail" style="display:none;margin-top:10px;">
+                <div class="field" style="max-width:280px;"><label>Capacidade disponível</label><div class="input-unit"><input type="number" id="cap-at-valor" placeholder="Ex: 28.4" step="0.1"><span class="unit-suffix">MVA</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO MT (padrão para todos; para Data Center só quando MT ativo) -->
+        <div id="rede-mt-block">
+          <div id="rede-mt-title" class="rede-sub-block-title" style="display:none;">MT — Média Tensão</div>
+          <div class="form-grid">
+            <div class="field"><label>Nome da Subestação</label><input type="text" id="sub-nome" placeholder="Ex: MEM MARTINS"></div>
+            <div class="field"><label>Concelho</label><input type="text" id="sub-concelho" placeholder="Ex: Sintra"></div>
+            <div class="field form-full"><label>Distância ao ponto de ligação</label><input type="text" id="sub-dist" placeholder="Ex: 250 m / 1,2 km"></div>
+          </div>
+          <div style="margin-top:14px;">
+            <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Capacidade Disponível</label>
+            <div class="cap-toggle"><div class="cap-btn" id="cap-sem" onclick="setCap('sem')">✕ Sem capacidade</div><div class="cap-btn" id="cap-ok" onclick="setCap('ok')">✓ Com capacidade</div></div>
+          </div>
+          <div id="cap-detail" style="display:none;margin-top:12px;">
+            <div class="form-grid">
+              <div class="field"><label>Capacidade disponível (MVA)</label><input type="number" id="cap-valor" placeholder="Ex: 28.4" step="0.1"></div>
+              <div class="field"><label>Nível de tensão</label><select id="cap-tensao"><option value="">Selecionar...</option><option>10 kV</option><option>15 kV</option><option>30 kV</option><option>60 kV</option></select></div>
+            </div>
           </div>
         </div>
         <div style="margin-top:16px;">
@@ -422,7 +476,7 @@ textarea{resize:vertical;min-height:90px;}
   <div class="step" id="step6">
     <div class="optional-toggle" onclick="togglePV()">
       <label class="toggle-switch" onclick="event.stopPropagation()"><input type="checkbox" id="toggle-pvs" onchange="togglePV()"><div class="toggle-track"></div></label>
-      <div><div class="toggle-label">Incluir Dimensionamento do Projeto</div><div class="toggle-desc">Ativar para incluir resultados da simulação solar</div></div>
+      <div><div class="toggle-label">Incluir Dimensionamento do Projeto</div><div class="toggle-desc" id="pv-toggle-desc">Ativar para incluir resultados da simulação solar</div></div>
     </div>
     <div class="optional-content" id="content-pvs">
       <div class="step-card">
@@ -588,6 +642,7 @@ function buildCondGrid(){
   condicionantes.forEach(c=>{
     const row=document.createElement('div');
     row.className='cond-row';
+    row.dataset.condId=c.id;
     let ctrl='';
     if(c.type==='text'){
       ctrl=`<input type="text" style="width:190px;padding:5px 8px;border:1px solid var(--borda);border-radius:4px;font-size:11px;background:#fff;" id="cv-${c.id}" placeholder="${c.placeholder||''}" oninput="condData['${c.id}'].val=this.value">`;
@@ -765,6 +820,40 @@ function offtakersApplicable(){
   const t=document.getElementById('g-tipo').value;
   return !(t==='UPP/BSP'||t==='Data Center');
 }
+// Estado dos níveis de ligação (só Data Center): MAT / AT / MT
+const redeDC={mat:false, at:false, mt:false};
+function toggleRedeMode(mode){
+  redeDC[mode]=!redeDC[mode];
+  updateRedeDCUI();
+}
+function updateRedeDCUI(){
+  const isDC=(document.getElementById('g-tipo').value==='Data Center');
+  const toggles=document.getElementById('rede-dc-toggles');
+  const matBlock=document.getElementById('rede-mat-block');
+  const atBlock=document.getElementById('rede-at-block');
+  const mtBlock=document.getElementById('rede-mt-block');
+  const mtTitle=document.getElementById('rede-mt-title');
+  if(toggles) toggles.style.display=isDC?'':'none';
+  if(!isDC){
+    // Fora de Data Center: bloco MT (padrão) sempre visível, sem MAT/AT
+    if(matBlock) matBlock.style.display='none';
+    if(atBlock) atBlock.style.display='none';
+    if(mtBlock) mtBlock.style.display='';
+    if(mtTitle) mtTitle.style.display='none';
+    return;
+  }
+  // Data Center: cada bloco depende do respetivo toggle
+  const bMat=document.getElementById('rede-btn-mat');
+  const bAt=document.getElementById('rede-btn-at');
+  const bMt=document.getElementById('rede-btn-mt');
+  if(bMat) bMat.className='rede-mode-btn'+(redeDC.mat?' sel':'');
+  if(bAt) bAt.className='rede-mode-btn'+(redeDC.at?' sel':'');
+  if(bMt) bMt.className='rede-mode-btn'+(redeDC.mt?' sel':'');
+  if(matBlock) matBlock.style.display=redeDC.mat?'':'none';
+  if(atBlock) atBlock.style.display=redeDC.at?'':'none';
+  if(mtBlock) mtBlock.style.display=redeDC.mt?'':'none';
+  if(mtTitle) mtTitle.style.display=redeDC.mt?'':'none';
+}
 function updateStepsForCategory(){
   const t=document.getElementById('g-tipo').value;
   const applicable=offtakersApplicable();
@@ -779,11 +868,23 @@ function updateStepsForCategory(){
   const isDC=(t==='Data Center');
   const atLink=document.getElementById('rede-link-at');
   if(atLink) atLink.style.display=isDC?'':'none';
+  // Ambientais: em Data Center não interessam as centrais fotovoltaicas no raio
+  const cfvRow=document.querySelector('[data-cond-id="cfv2km"]');
+  if(cfvRow) cfvRow.style.display=isDC?'none':'';
+  if(isDC && condData['cfv2km']){
+    // limpa qualquer valor previamente introduzido para não aparecer no PDF
+    condData['cfv2km']={val:'',area:'',risco:'',simMode:'',simText:'',riscoEntries:[]};
+  }
+  // Dimensionamento: troca "solar" por "DC" no texto do toggle
+  const pvDesc=document.getElementById('pv-toggle-desc');
+  if(pvDesc) pvDesc.textContent=isDC?'Ativar para incluir resultados da simulação DC':'Ativar para incluir resultados da simulação solar';
   const dimSolar=document.getElementById('dim-solar-block');
   const dimDC=document.getElementById('dim-dc-block');
   if(dimSolar) dimSolar.style.display=isDC?'none':'';
   if(dimDC) dimDC.style.display=isDC?'':'none';
   if(isDC) calcDCPower();
+  // Rede elétrica: mostra seletor MAT/AT/MT em Data Center, bloco padrão nos restantes
+  updateRedeDCUI();
 }
 function calcDCPower(){
   const out=document.getElementById('dc-potencia-calc');
@@ -818,6 +919,8 @@ function onSaveGrupoChange(){
 // ── CAPACIDADE ──
 let capState='';
 function setCap(v){capState=v;document.getElementById('cap-sem').className='cap-btn'+(v==='sem'?' sel-sem':'');document.getElementById('cap-ok').className='cap-btn'+(v==='ok'?' sel-ok':'');document.getElementById('cap-detail').style.display=v==='ok'?'block':'none';}
+let capATState='';
+function setCapAT(v){capATState=v;document.getElementById('cap-at-sem').className='cap-btn'+(v==='sem'?' sel-sem':'');document.getElementById('cap-at-ok').className='cap-btn'+(v==='ok'?' sel-ok':'');document.getElementById('cap-at-detail').style.display=v==='ok'?'block':'none';}
 
 // ── IMAGES ──
 let imgMain=null,imgExtras=[],imgPV=null,imgRedeImgs=[];
@@ -1144,6 +1247,12 @@ function buildPDFHtml(){
   const subDist=document.getElementById('sub-dist').value||'';
   const capValor=document.getElementById('cap-valor').value||'';
   const capTensao=document.getElementById('cap-tensao').value||'';
+  // Data Center: níveis de ligação MAT / AT / MT
+  const gv=id=>document.getElementById(id)?document.getElementById(id).value||'':'';
+  const matOn=isDC&&redeDC.mat, atOn=isDC&&redeDC.at, mtOn=isDC&&redeDC.mt;
+  const matSubNome=gv('mat-sub-nome'), matDist=gv('mat-dist');
+  const atSubNome=gv('at-sub-nome'), atBarramento=gv('at-barramento'), atBarramentoKv=gv('at-barramento-kv'), atDist=gv('at-dist');
+  const atCapValor=gv('cap-at-valor');
   const incOff=document.getElementById('toggle-offtakers').checked;
   const offNoneEl=document.getElementById('off-none');
   const offNone=!!(offNoneEl&&offNoneEl.checked);
@@ -1176,7 +1285,7 @@ function buildPDFHtml(){
     ?`${nome}</div><div class="pdf-coords" onclick="window.open('${mapsUrl}','_blank')">${parseFloat(String(lat).replace(',','.')).toFixed(4)}, ${parseFloat(String(lng).replace(',','.')).toFixed(4)}`
     :nome;
 
-  const condRows=condicionantes.map(c=>`<tr><td>${c.label}</td><td>${badge(condVal(c))}</td></tr>`).join('');
+  const condRows=condicionantes.filter(c=>!(isDC&&c.id==='cfv2km')).map(c=>`<tr><td>${c.label}</td><td>${badge(condVal(c))}</td></tr>`).join('');
 
   const mapImgHtml=imgMain?`<img src="${imgMain}" style="max-width:100%;max-height:280px;object-fit:contain;display:block;margin:0 auto;">`:`<div style="font-size:9px;color:#6B7C6D;text-align:center;padding:20px;">Imagem não carregada</div>`;
 
@@ -1205,6 +1314,31 @@ function buildPDFHtml(){
   else if(capState==='ok'){const det=[capValor?fmtNum(capValor)+' MVA':'',capTensao].filter(Boolean).join(' · ');capTagHtml=`<div class="pdf-cap-tag pdf-cap-ok">✓ Capacidade disponível${det?' — '+det:''}</div>`;}
 
   const distHtml=subDist?`<div class="pdf-sub-box" style="grid-column:1/-1;"><div class="pdf-sub-label">Distância ao ponto de ligação</div><div class="pdf-sub-val">${subDist}</div></div>`:'';
+
+  // Corpo do cartão "Ligação à Rede Elétrica" — muda conforme o tipo de projeto
+  const pbox=(label,val,full)=>`<div class="pdf-sub-box"${full?' style="grid-column:1/-1;"':''}><div class="pdf-sub-label">${label}</div><div class="pdf-sub-val">${val||'—'}</div></div>`;
+  const redeLvlTitle=txt=>`<div style="font-size:8px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:#4E6E51;margin:2px 0 5px;">${txt}</div>`;
+  let redeCardBodyHtml='';
+  const dcAny=isDC&&(matOn||atOn||mtOn);
+  if(dcAny){
+    let secs='';
+    if(matOn){
+      secs+=`<div style="margin-bottom:9px;">${redeLvlTitle('MAT — Muito Alta Tensão')}<div class="pdf-sub-grid">${pbox('Subestação',matSubNome)}${pbox('Distância à subestação',matDist)}</div></div>`;
+    }
+    if(atOn){
+      const atBarrVal=atBarramento?(atBarramento+(atBarramentoKv?' · '+fmtNum(atBarramentoKv)+' kV':'')):(atBarramentoKv?fmtNum(atBarramentoKv)+' kV':'');
+      let atCapTag='';
+      if(capATState==='sem') atCapTag=`<div class="pdf-cap-tag pdf-cap-sem" style="margin-top:6px;">✕ Sem capacidade de receção disponível</div>`;
+      else if(capATState==='ok') atCapTag=`<div class="pdf-cap-tag pdf-cap-ok" style="margin-top:6px;">✓ Capacidade disponível${atCapValor?' — '+fmtNum(atCapValor)+' MVA':''}</div>`;
+      secs+=`<div style="margin-bottom:9px;">${redeLvlTitle('AT — Alta Tensão')}<div class="pdf-sub-grid">${pbox('Subestação',atSubNome)}${pbox('Barramento',atBarrVal)}${atDist?pbox('Distância ao ponto de ligação',atDist,true):''}</div>${atCapTag}</div>`;
+    }
+    if(mtOn){
+      secs+=`<div style="margin-bottom:4px;">${redeLvlTitle('MT — Média Tensão')}<div class="pdf-sub-grid">${pbox('Subestação',subNome)}${pbox('Concelho',subConc)}${distHtml}</div>${capTagHtml}</div>`;
+    }
+    redeCardBodyHtml=secs;
+  } else {
+    redeCardBodyHtml=`<div class="pdf-sub-grid">${pbox('Subestação',subNome)}${pbox('Concelho',subConc)}${distHtml}</div>${capTagHtml}`;
+  }
 
   // PV — bottom row position changes: Rede | PV (below Rede if PV active)
   // Layout: left col = Rede+PV stacked | right col = Conclusões full height
@@ -1338,12 +1472,7 @@ function buildPDFHtml(){
           <div class="pdf-card">
             <div class="pdf-card-head"><span>Ligação à Rede Elétrica</span></div>
             <div class="pdf-card-body">
-              <div class="pdf-sub-grid">
-                <div class="pdf-sub-box"><div class="pdf-sub-label">Subestação</div><div class="pdf-sub-val">${subNome}</div></div>
-                <div class="pdf-sub-box"><div class="pdf-sub-label">Concelho</div><div class="pdf-sub-val">${subConc}</div></div>
-                ${distHtml}
-              </div>
-              ${capTagHtml}
+              ${redeCardBodyHtml}
               ${redeImgsHtml}
             </div>
           </div>
@@ -1527,6 +1656,12 @@ async function saveToSheet() {
   const subDist  = document.getElementById('sub-dist') ? document.getElementById('sub-dist').value || '' : '';
   const capValor = document.getElementById('cap-valor') ? document.getElementById('cap-valor').value || '' : '';
   const capTensao= document.getElementById('cap-tensao') ? document.getElementById('cap-tensao').value || '' : '';
+  // Data Center: níveis de ligação MAT / AT / MT
+  const _gv = id => document.getElementById(id) ? document.getElementById(id).value || '' : '';
+  const redeModos = [redeDC.mat?'MAT':'', redeDC.at?'AT':'', redeDC.mt?'MT':''].filter(Boolean).join(',');
+  const matSubNome = _gv('mat-sub-nome'), matDist = _gv('mat-dist');
+  const atSubNome = _gv('at-sub-nome'), atBarramento = _gv('at-barramento'), atBarramentoKv = _gv('at-barramento-kv'), atDist = _gv('at-dist');
+  const atCapValor = _gv('cap-at-valor');
   const prop     = document.getElementById('g-prop') ? document.getElementById('g-prop').value || '' : '';
   const tipoRaw  = document.getElementById('g-tipo').value || '';
   const tipoOutroEl2 = document.getElementById('g-tipo-outro');
@@ -1660,6 +1795,9 @@ async function saveToSheet() {
     grupo, grupoOutros, viab, viabMotivo: '',
     estado, estadoPreco,
     subNome, subConc, subDist,
+    redeModos, matSubNome, matDist,
+    atSubNome, atBarramento, atBarramentoKv, atDist,
+    atCapEstado: capATState || '', atCapValor,
     capEstado:  capState || '',
     capValor,   capTensao, capSE,
     nOfftakersRaio: offDataRaio.length,
@@ -1847,6 +1985,25 @@ async function preloadFromSheet() {
     setVal('sub-nome',     t.subNome);
     setVal('sub-concelho', t.subConc);
     setVal('sub-dist',     t.subDist);
+
+    // Data Center: níveis de ligação MAT / AT / MT
+    setVal('mat-sub-nome', t.matSubNome);
+    setVal('mat-dist',     t.matDist);
+    setVal('at-sub-nome',  t.atSubNome);
+    setVal('at-barramento',t.atBarramento);
+    setVal('at-barramento-kv', t.atBarramentoKv);
+    setVal('at-dist',      t.atDist);
+    if (t.atCapEstado) {
+      setCapAT(t.atCapEstado);
+      setVal('cap-at-valor', t.atCapValor);
+    }
+    if (t.redeModos) {
+      const modos = String(t.redeModos).split(',').map(s=>s.trim());
+      redeDC.mat = modos.includes('MAT');
+      redeDC.at  = modos.includes('AT');
+      redeDC.mt  = modos.includes('MT');
+      if (typeof updateRedeDCUI === 'function') setTimeout(() => updateRedeDCUI(), 350);
+    }
 
     // Capacity state - use setCap() directly
     if (t.capEstado) {
