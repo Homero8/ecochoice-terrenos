@@ -76,6 +76,21 @@ textarea{resize:vertical;min-height:90px;}
 .rede-sub-block{border:1px solid var(--borda);border-radius:8px;padding:14px;margin-bottom:12px;background:var(--fundo);}
 .rede-sub-block-title{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--verde);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
 .rede-sub-block-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);}
+/* multi-subestação */
+.se-item{border:1px dashed var(--borda);border-radius:8px;padding:12px;margin-top:10px;background:#fff;}
+.se-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px;}
+.se-item-tag{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--verde);}
+.se-del{background:#FEE2E2;color:#B91C1C;border:1px solid #FCA5A5;border-radius:5px;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer;font-family:inherit;}
+.se-del:hover{background:#FCA5A5;color:#7F1D1D;}
+.se-move{background:#fff;color:var(--verde);border:1px solid var(--borda);border-radius:5px;font-size:10px;font-weight:700;padding:3px 7px;cursor:pointer;font-family:inherit;margin-right:4px;}
+.se-move:hover{background:var(--fundo);}
+.btn-add-se{margin-top:10px;background:#fff;border:2px dashed var(--accent);color:var(--verde);border-radius:7px;padding:9px 12px;font-size:11px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:all .2s;}
+.btn-add-se:hover{background:#DCFCE7;border-color:var(--verde);}
+.main-img-item{border:1px solid var(--borda);border-radius:8px;padding:10px;margin-top:10px;background:#fff;}
+.main-img-item img{max-width:100%;max-height:210px;border-radius:5px;display:block;border:1px solid var(--borda);}
+.main-img-tag{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--verde);}
+.main-img-tag small{font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none;}
+.main-img-item .img-caption-inp{margin-top:7px;font-size:10px;padding:5px 7px;}
 /* input com unidade fixa (kV / MVA) */
 .input-unit{position:relative;display:flex;align-items:center;width:100%;}
 .input-unit input{padding-right:46px;width:100%;}
@@ -283,13 +298,18 @@ textarea{resize:vertical;min-height:90px;}
         <div style="background:#fffbe6;border:1px solid #d4a800;border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#7a5c00;">
           ⚠️ <strong>Atenção:</strong> As fotografias inseridas neste passo <strong>não ficam guardadas na nuvem</strong> — apenas a foto principal é enviada para o Drive ao guardar no Passo 8. Guarde as fotografias no seu computador para não as perder.
         </div>
-        <div class="info-note">Carregue a imagem principal. Imagens adicionais só aparecem no PDF se forem carregadas — sem distorção.</div>
-        <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Imagem Principal</label>
+        <div class="info-note">Carregue as imagens principais. Imagens adicionais só aparecem no PDF se forem carregadas — sem distorção.</div>
+        <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Imagens Principais</label>
         <div class="img-upload-area" onclick="document.getElementById('img-main-input').click()" style="margin-top:6px;">
-          <input type="file" id="img-main-input" accept="image/*" onchange="handleMainImg(event)">
-          <div class="img-upload-label"><strong>Clique para carregar</strong> a imagem principal do QGIS</div>
+          <input type="file" id="img-main-input" accept="image/*" multiple onchange="handleMainImg(event)">
+          <div class="img-upload-label"><strong>Clique para carregar</strong> a(s) imagem(ns) principal(is) do QGIS</div>
         </div>
         <div id="img-main-preview"></div>
+        <button type="button" class="btn-add-se" onclick="document.getElementById('img-main-input').click()">+ Adicionar outra imagem principal</button>
+        <div style="font-size:10px;color:var(--muted);margin-top:7px;line-height:1.45;">
+          Todas as imagens principais aparecem no cartão «Terreno» da Pág. 1, <strong>empilhadas uma por baixo da outra</strong> e a largura total. As <strong>Imagens Adicionais</strong> ficam por baixo, em pequeno.<br>
+          A altura ajusta-se ao número de imagens (1 → 280px · 2 → 215px · 3 → 150px). Acima de 3 ficam pequenas — nesse caso use as Imagens Adicionais. Só a <strong>1.ª</strong> é enviada para o Drive. Use ↑ ↓ para reordenar.
+        </div>
         <div style="margin-top:14px;">
           <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;">Imagens Adicionais (opcional)</label>
           <div class="img-upload-area" onclick="document.getElementById('img-extra-input').click()" style="margin-top:6px;">
@@ -323,15 +343,19 @@ textarea{resize:vertical;min-height:90px;}
         <!-- BLOCO MAT (só Data Center) -->
         <div id="rede-mat-block" class="rede-sub-block" style="display:none;">
           <div class="rede-sub-block-title">MAT — Muito Alta Tensão</div>
+          <div class="se-item-head" id="mat-se1-head" style="display:none;"><span class="se-item-tag">Subestação 1 — MAT</span></div>
           <div class="form-grid">
             <div class="field"><label>Nome da Subestação</label><input type="text" id="mat-sub-nome" placeholder="Ex: FANHÕES"></div>
             <div class="field"><label>Distância do terreno à subestação</label><input type="text" id="mat-dist" placeholder="Ex: 800 m / 2,4 km"></div>
           </div>
+          <div id="mat-extra-list"></div>
+          <button type="button" class="btn-add-se" onclick="addSE('mat')">+ Adicionar outra subestação MAT</button>
         </div>
 
         <!-- BLOCO AT (só Data Center) -->
         <div id="rede-at-block" class="rede-sub-block" style="display:none;">
           <div class="rede-sub-block-title">AT — Alta Tensão</div>
+          <div class="se-item-head" id="at-se1-head" style="display:none;"><span class="se-item-tag">Subestação 1 — AT</span></div>
           <div class="form-grid">
             <div class="field"><label>Nome da Subestação</label><input type="text" id="at-sub-nome" placeholder="Ex: MEM MARTINS"></div>
             <div class="field"><label>Distância ao ponto de ligação</label><input type="text" id="at-dist" placeholder="Ex: 350 m / 1,1 km"></div>
@@ -345,11 +369,14 @@ textarea{resize:vertical;min-height:90px;}
               </div>
             </div>
           </div>
+          <div id="at-extra-list"></div>
+          <button type="button" class="btn-add-se" onclick="addSE('at')">+ Adicionar outra subestação AT</button>
         </div>
 
         <!-- BLOCO MT (padrão para todos; para Data Center só quando MT ativo) -->
         <div id="rede-mt-block">
           <div id="rede-mt-title" class="rede-sub-block-title" style="display:none;">MT — Média Tensão</div>
+          <div class="se-item-head" id="mt-se1-head" style="display:none;"><span class="se-item-tag">Subestação 1 — MT</span></div>
           <div class="form-grid">
             <div class="field"><label>Nome da Subestação</label><input type="text" id="sub-nome" placeholder="Ex: MEM MARTINS"></div>
             <div class="field"><label>Concelho</label><input type="text" id="sub-concelho" placeholder="Ex: Sintra"></div>
@@ -365,6 +392,8 @@ textarea{resize:vertical;min-height:90px;}
               <div class="field"><label>Nível de tensão</label><select id="cap-tensao"><option value="">Selecionar...</option><option>10 kV</option><option>15 kV</option><option>30 kV</option><option>60 kV</option></select></div>
             </div>
           </div>
+          <div id="mt-extra-list"></div>
+          <button type="button" class="btn-add-se" onclick="addSE('mt')">+ Adicionar outra subestação MT</button>
         </div>
         <div style="margin-top:16px;">
           <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:6px;">Imagens da Rede (opcional)</label>
@@ -922,17 +951,109 @@ function setCap(v){capState=v;document.getElementById('cap-sem').className='cap-
 let capATState='';
 function setCapAT(v){capATState=v;document.getElementById('cap-at-sem').className='cap-btn'+(v==='sem'?' sel-sem':'');document.getElementById('cap-at-ok').className='cap-btn'+(v==='ok'?' sel-ok':'');document.getElementById('cap-at-detail').style.display=v==='ok'?'block':'none';}
 
+// ── SUBESTAÇÕES ADICIONAIS (2.ª, 3.ª ... por nível MAT / AT / MT) ──
+const redeExtras={mat:[],at:[],mt:[]};
+const SE_LVL_LABEL={mat:'MAT',at:'AT',mt:'MT'};
+const SE_TENSOES=['10 kV','15 kV','30 kV','60 kV'];
+function _seEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function addSE(lvl){
+  if(lvl==='mat')      redeExtras.mat.push({nome:'',dist:''});
+  else if(lvl==='at')  redeExtras.at.push({nome:'',dist:'',barramento:'',barramentoKv:'',capEstado:'',capValor:''});
+  else                 redeExtras.mt.push({nome:'',concelho:'',dist:'',capEstado:'',capValor:'',capTensao:''});
+  renderSEExtras(lvl);
+}
+function removeSE(lvl,i){redeExtras[lvl].splice(i,1);renderSEExtras(lvl);}
+function moveSE(lvl,i,d){const j=i+d;const a=redeExtras[lvl];if(j<0||j>=a.length)return;const t=a[i];a[i]=a[j];a[j]=t;renderSEExtras(lvl);}
+function setSEField(lvl,i,k,v){if(redeExtras[lvl]&&redeExtras[lvl][i])redeExtras[lvl][i][k]=v;}
+function setSECap(lvl,i,v){
+  if(!redeExtras[lvl]||!redeExtras[lvl][i])return;
+  redeExtras[lvl][i].capEstado=v;
+  const semB=document.getElementById('se-'+lvl+'-'+i+'-cap-sem');
+  const okB =document.getElementById('se-'+lvl+'-'+i+'-cap-ok');
+  const det =document.getElementById('se-'+lvl+'-'+i+'-cap-det');
+  if(semB) semB.className='cap-btn'+(v==='sem'?' sel-sem':'');
+  if(okB)  okB.className ='cap-btn'+(v==='ok'?' sel-ok':'');
+  if(det)  det.style.display=(v==='ok'?'block':'none');
+}
+function _seCapBlock(lvl,i,it,withTensao){
+  const sel=it.capEstado||'';
+  return `<div class="field form-full">
+    <label>Capacidade de Receção</label>
+    <div class="cap-toggle">
+      <div class="cap-btn${sel==='sem'?' sel-sem':''}" id="se-${lvl}-${i}-cap-sem" onclick="setSECap('${lvl}',${i},'sem')">✕ Sem capacidade</div>
+      <div class="cap-btn${sel==='ok'?' sel-ok':''}" id="se-${lvl}-${i}-cap-ok" onclick="setSECap('${lvl}',${i},'ok')">✓ Com capacidade</div>
+    </div>
+    <div id="se-${lvl}-${i}-cap-det" style="display:${sel==='ok'?'block':'none'};margin-top:10px;">
+      <div class="form-grid">
+        <div class="field"><label>Capacidade disponível</label><div class="input-unit"><input type="number" step="0.1" placeholder="Ex: 28.4" value="${_seEsc(it.capValor)}" oninput="setSEField('${lvl}',${i},'capValor',this.value)"><span class="unit-suffix">MVA</span></div></div>
+        ${withTensao?`<div class="field"><label>Nível de tensão</label><select onchange="setSEField('${lvl}',${i},'capTensao',this.value)"><option value="">Selecionar...</option>${SE_TENSOES.map(t=>`<option${it.capTensao===t?' selected':''}>${t}</option>`).join('')}</select></div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+function renderSEExtras(lvl){
+  const cont=document.getElementById(lvl+'-extra-list');
+  if(!cont) return;
+  const arr=redeExtras[lvl]||[];
+  cont.innerHTML=arr.map((it,i)=>{
+    let fields='';
+    if(lvl==='mat'){
+      fields=`<div class="field"><label>Nome da Subestação</label><input type="text" placeholder="Ex: FANHÕES" value="${_seEsc(it.nome)}" oninput="setSEField('mat',${i},'nome',this.value)"></div>
+      <div class="field"><label>Distância do terreno à subestação</label><input type="text" placeholder="Ex: 800 m / 2,4 km" value="${_seEsc(it.dist)}" oninput="setSEField('mat',${i},'dist',this.value)"></div>`;
+    } else if(lvl==='at'){
+      fields=`<div class="field"><label>Nome da Subestação</label><input type="text" placeholder="Ex: MEM MARTINS" value="${_seEsc(it.nome)}" oninput="setSEField('at',${i},'nome',this.value)"></div>
+      <div class="field"><label>Distância ao ponto de ligação</label><input type="text" placeholder="Ex: 350 m / 1,1 km" value="${_seEsc(it.dist)}" oninput="setSEField('at',${i},'dist',this.value)"></div>
+      <div class="field"><label>Barramento</label><input type="text" placeholder="Ex: Barramento 1" value="${_seEsc(it.barramento)}" oninput="setSEField('at',${i},'barramento',this.value)"></div>
+      <div class="field"><label>Nível de tensão do barramento</label><div class="input-unit"><input type="number" step="0.1" placeholder="Ex: 60" value="${_seEsc(it.barramentoKv)}" oninput="setSEField('at',${i},'barramentoKv',this.value)"><span class="unit-suffix">kV</span></div></div>
+      ${_seCapBlock('at',i,it,false)}`;
+    } else {
+      fields=`<div class="field"><label>Nome da Subestação</label><input type="text" placeholder="Ex: MEM MARTINS" value="${_seEsc(it.nome)}" oninput="setSEField('mt',${i},'nome',this.value)"></div>
+      <div class="field"><label>Concelho</label><input type="text" placeholder="Ex: Sintra" value="${_seEsc(it.concelho)}" oninput="setSEField('mt',${i},'concelho',this.value)"></div>
+      <div class="field form-full"><label>Distância ao ponto de ligação</label><input type="text" placeholder="Ex: 250 m / 1,2 km" value="${_seEsc(it.dist)}" oninput="setSEField('mt',${i},'dist',this.value)"></div>
+      ${_seCapBlock('mt',i,it,true)}`;
+    }
+    return `<div class="se-item">
+      <div class="se-item-head">
+        <span class="se-item-tag">Subestação ${i+2} — ${SE_LVL_LABEL[lvl]}</span>
+        <span>${i>0?`<button type="button" class="se-move" onclick="moveSE('${lvl}',${i},-1)">↑</button>`:''}${i<arr.length-1?`<button type="button" class="se-move" onclick="moveSE('${lvl}',${i},1)">↓</button>`:''}<button type="button" class="se-del" onclick="removeSE('${lvl}',${i})">× Remover</button></span>
+      </div>
+      <div class="form-grid">${fields}</div>
+    </div>`;
+  }).join('');
+  const h=document.getElementById(lvl+'-se1-head');
+  if(h) h.style.display=arr.length>0?'flex':'none';
+}
+function renderAllSEExtras(){['mat','at','mt'].forEach(renderSEExtras);}
+
 // ── IMAGES ──
-let imgMain=null,imgExtras=[],imgPV=null,imgRedeImgs=[];
+let imgMains=[];            // [{src, caption}] — várias imagens principais
+let imgMain=null;           // compat: 1.ª imagem principal (a que vai para o Drive e para a Pág. 1)
+let imgExtras=[],imgPV=null,imgRedeImgs=[];
+function syncImgMain(){ imgMain = imgMains.length ? imgMains[0].src : null; }
 function handleMainImg(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    imgMain=ev.target.result;
-    document.getElementById('img-main-preview').innerHTML=`<div style="position:relative;display:inline-block;margin-top:8px;"><img src="${imgMain}" style="max-width:100%;max-height:200px;border-radius:6px;border:1px solid var(--borda);"><button class="img-remove" onclick="imgMain=null;document.getElementById('img-main-preview').innerHTML='';document.getElementById('img-main-input').value='';">×</button></div>`;
-  };
-  r.readAsDataURL(f);
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{imgMains.push({src:ev.target.result,caption:''});syncImgMain();renderMainPreviews();};
+    r.readAsDataURL(f);
+  });
   e.target.value='';
+}
+function removeMainImg(i){imgMains.splice(i,1);syncImgMain();renderMainPreviews();}
+function moveMainImg(i,d){const j=i+d;if(j<0||j>=imgMains.length)return;const t=imgMains[i];imgMains[i]=imgMains[j];imgMains[j]=t;syncImgMain();renderMainPreviews();}
+function renderMainPreviews(){
+  const c=document.getElementById('img-main-preview');
+  if(!c) return;
+  c.innerHTML='';
+  imgMains.forEach((img,i)=>{
+    const d=document.createElement('div');d.className='main-img-item';
+    d.innerHTML=`<div class="se-item-head">
+      <span class="main-img-tag">Imagem principal ${i+1}${i===0?' <small>· Pág. 1 + Drive</small>':' <small>· Pág. 1</small>'}</span>
+      <span>${i>0?`<button type="button" class="se-move" onclick="moveMainImg(${i},-1)">↑</button>`:''}${i<imgMains.length-1?`<button type="button" class="se-move" onclick="moveMainImg(${i},1)">↓</button>`:''}<button type="button" class="se-del" onclick="removeMainImg(${i})">× Remover</button></span>
+    </div>
+    <img src="${img.src}">
+    <input class="img-caption-inp" type="text" placeholder="Legenda (opcional)" value="${String(img.caption||'').replace(/"/g,'&quot;')}" oninput="imgMains[${i}].caption=this.value">`;
+    c.appendChild(d);
+  });
 }
 function handleExtraImgs(e){
   Array.from(e.target.files).forEach(f=>{
@@ -1126,7 +1247,7 @@ let currentStep=1;
 function goStep(n){
   if(n===5&&!offtakersApplicable()){n=n>currentStep?6:4;}
   document.getElementById('step'+currentStep).classList.remove('active');document.getElementById('ps'+currentStep).classList.remove('active');document.getElementById('ps'+currentStep).classList.add('done');currentStep=n;document.getElementById('step'+n).classList.add('active');document.getElementById('ps'+n).classList.add('active');document.getElementById('ps'+n).classList.remove('done');if(n===8)buildSummary();window.scrollTo(0,0);}
-function buildSummary(){const nome=document.getElementById('g-nome').value||'(sem nome)';const tipo=document.getElementById('g-tipo').value||'—';const area=document.getElementById('g-area').value||'—';const areaUtil=document.getElementById('area-util').value||'—';const subNome=document.getElementById('sub-nome').value||'—';const cap=capState==='sem'?'Sem capacidade':capState==='ok'?'Com capacidade':'—';const incOff=document.getElementById('toggle-offtakers').checked;const offNoneEl=document.getElementById('off-none');const offNone=!!(offNoneEl&&offNoneEl.checked);const incPV=document.getElementById('toggle-pvs').checked;const propEl=document.getElementById('g-prop');const propVal=propEl?propEl.value:'';let offtakersTxt='Não incluído';if(incOff)offtakersTxt=(offDataRaio.length+' raio / '+offDataSE.length+' mesma SE');if(offNone)offtakersTxt='Sem offtakers suficientes na zona';document.getElementById('summary-box').innerHTML=`<strong>Terreno:</strong> ${nome}${propVal?' <span style="color:var(--muted);font-size:11px;">· '+propVal+'</span>':''}<br><strong>Tipo:</strong> ${tipo} · <strong>Área útil:</strong> ${areaUtil} ha<br><strong>Subestação:</strong> ${subNome} · <strong>Capacidade:</strong> ${cap}<br><strong>Offtakers:</strong> ${offtakersTxt}<br><strong>Dimensionamento:</strong> ${incPV?'Incluído':'Não incluído'} · <strong>Conclusões:</strong> ${conclusions.filter(c=>c).length}`;}
+function buildSummary(){const nome=document.getElementById('g-nome').value||'(sem nome)';const tipo=document.getElementById('g-tipo').value||'—';const area=document.getElementById('g-area').value||'—';const areaUtil=document.getElementById('area-util').value||'—';const subNome=document.getElementById('sub-nome').value||'—';const nExtraSE=redeExtras.mat.length+redeExtras.at.length+redeExtras.mt.length;const subNomeTxt=subNome+(nExtraSE>0?' <span style="color:var(--muted);font-size:11px;">(+'+nExtraSE+' SE adicional'+(nExtraSE>1?'is':'')+')</span>':'');const cap=capState==='sem'?'Sem capacidade':capState==='ok'?'Com capacidade':'—';const incOff=document.getElementById('toggle-offtakers').checked;const offNoneEl=document.getElementById('off-none');const offNone=!!(offNoneEl&&offNoneEl.checked);const incPV=document.getElementById('toggle-pvs').checked;const propEl=document.getElementById('g-prop');const propVal=propEl?propEl.value:'';let offtakersTxt='Não incluído';if(incOff)offtakersTxt=(offDataRaio.length+' raio / '+offDataSE.length+' mesma SE');if(offNone)offtakersTxt='Sem offtakers suficientes na zona';document.getElementById('summary-box').innerHTML=`<strong>Terreno:</strong> ${nome}${propVal?' <span style="color:var(--muted);font-size:11px;">· '+propVal+'</span>':''}<br><strong>Tipo:</strong> ${tipo} · <strong>Área útil:</strong> ${areaUtil} ha<br><strong>Subestação:</strong> ${subNomeTxt} · <strong>Capacidade:</strong> ${cap}<br><strong>Offtakers:</strong> ${offtakersTxt}<br><strong>Dimensionamento:</strong> ${incPV?'Incluído':'Não incluído'} · <strong>Conclusões:</strong> ${conclusions.filter(c=>c).length}`;}
 
 // ── PDF HELPERS ──
 function fmtNum(v){if(!v&&v!==0)return v;const s=String(v).replace(/,/g,'.');const n=parseFloat(s);if(isNaN(n))return v;return n.toLocaleString('pt-PT',{useGrouping:true,maximumFractionDigits:3}).replace(/\u00a0/g,' ');}
@@ -1214,7 +1335,7 @@ function buildOffPage(raioSlice, seSlice, nome, ref, pagNum, totalPags, pvPage2H
     </div>
     <div style="padding:10px 15px 0;"><div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#3D5C40;border-left:3px solid #7FC236;padding-left:8px;">Lista de Offtakers CER</div></div>
     <div class="pdf-body" style="flex:1;display:flex;flex-direction:column;gap:10px;">
-      ${pagNum===2&&pvPage2Html?pvPage2Html:''}
+      ${pvPage2Html?pvPage2Html:''}
       <div class="pdf-row" style="flex:1;align-items:stretch;">
         ${raioSlice&&raioSlice.length>0?`<div style="flex:1;"><div class="pdf-card" style="height:100%;"><div class="pdf-card-head"><span>Raio de 4 km (${offDataRaio.length} empresas)</span></div><div class="pdf-card-body">${renderCol(raioSlice,'Raio 4 km')}</div></div></div>`:''}
         ${seSlice&&seSlice.length>0?`<div style="flex:1;"><div class="pdf-card" style="height:100%;"><div class="pdf-card-head"><span>Ligados à Mesma Subestação (${offDataSE.length} empresas)</span></div><div class="pdf-card-body">${renderCol(seSlice,'Ligados à mesma SE')}</div></div></div>`:''}
@@ -1287,7 +1408,21 @@ function buildPDFHtml(){
 
   const condRows=condicionantes.filter(c=>!(isDC&&c.id==='cfv2km')).map(c=>`<tr><td>${c.label}</td><td>${badge(condVal(c))}</td></tr>`).join('');
 
-  const mapImgHtml=imgMain?`<img src="${imgMain}" style="max-width:100%;max-height:280px;object-fit:contain;display:block;margin:0 auto;">`:`<div style="font-size:9px;color:#6B7C6D;text-align:center;padding:20px;">Imagem não carregada</div>`;
+  // Imagens principais — empilhadas no cartão "Terreno", grandes, uma por baixo da outra.
+  // Altura adaptativa para que Rede + Conclusões continuem a caber na Pág. 1.
+  const mainCount=imgMains.length;
+  const mainMaxH = mainCount<=1?280 : mainCount===2?215 : mainCount===3?150 : 115;
+  let mainImgsHtml='';
+  if(mainCount===0){
+    mainImgsHtml=`<div style="min-height:150px;background:#F4F6F3;border:1.5px dashed #C8D0C7;border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;"><div style="font-size:9px;color:#6B7C6D;text-align:center;padding:20px;">Imagem não carregada</div></div>`;
+  } else {
+    mainImgsHtml=imgMains.map((img,i)=>`<div${i<mainCount-1?' style="margin-bottom:6px;"':''}>
+      <div style="min-height:${Math.min(150,mainMaxH)}px;background:#F4F6F3;border:1.5px dashed #C8D0C7;border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+        <img src="${img.src}" style="max-width:100%;max-height:${mainMaxH}px;object-fit:contain;display:block;margin:0 auto;">
+      </div>
+      ${img.caption?`<div style="background:#3D5C40;color:#fff;font-size:7.5px;padding:2px 6px;font-weight:600;text-align:center;border-radius:0 0 5px 5px;">${img.caption}</div>`:''}
+    </div>`).join('');
+  }
 
   // Extra images — no distortion
   let extraImgHtml='';
@@ -1318,26 +1453,42 @@ function buildPDFHtml(){
   // Corpo do cartão "Ligação à Rede Elétrica" — muda conforme o tipo de projeto
   const pbox=(label,val,full)=>`<div class="pdf-sub-box"${full?' style="grid-column:1/-1;"':''}><div class="pdf-sub-label">${label}</div><div class="pdf-sub-val">${val||'—'}</div></div>`;
   const redeLvlTitle=txt=>`<div style="font-size:8px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;color:#4E6E51;margin:2px 0 5px;">${txt}</div>`;
+  const seNumHead=n=>`<div style="font-size:7.5px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;color:#6B7C6D;margin:7px 0 4px;">Subestação ${n}</div>`;
+  const capTagFor=(estado,valor,tensao)=>{
+    if(estado==='sem') return `<div class="pdf-cap-tag pdf-cap-sem" style="margin-top:6px;">✕ Sem capacidade de receção disponível</div>`;
+    if(estado==='ok'){const det=[valor?fmtNum(valor)+' MVA':'',tensao||''].filter(Boolean).join(' · ');return `<div class="pdf-cap-tag pdf-cap-ok" style="margin-top:6px;">✓ Capacidade disponível${det?' — '+det:''}</div>`;}
+    return '';
+  };
+  // Subestações adicionais (2.ª em diante) por nível
+  const seExtraPdf=lvl=>(redeExtras[lvl]||[]).map((it,i)=>{
+    if(lvl==='mat') return seNumHead(i+2)+`<div class="pdf-sub-grid">${pbox('Subestação',it.nome)}${pbox('Distância à subestação',it.dist)}</div>`;
+    if(lvl==='at'){
+      const barr=it.barramento?(it.barramento+(it.barramentoKv?' · '+fmtNum(it.barramentoKv)+' kV':'')):(it.barramentoKv?fmtNum(it.barramentoKv)+' kV':'');
+      return seNumHead(i+2)+`<div class="pdf-sub-grid">${pbox('Subestação',it.nome)}${pbox('Barramento',barr)}${it.dist?pbox('Distância ao ponto de ligação',it.dist,true):''}</div>${capTagFor(it.capEstado,it.capValor,'')}`;
+    }
+    return seNumHead(i+2)+`<div class="pdf-sub-grid">${pbox('Subestação',it.nome)}${pbox('Concelho',it.concelho)}${it.dist?pbox('Distância ao ponto de ligação',it.dist,true):''}</div>${capTagFor(it.capEstado,it.capValor,it.capTensao)}`;
+  }).join('');
+  const seOneHead=lvl=>(redeExtras[lvl]&&redeExtras[lvl].length>0)?seNumHead(1):'';
   let redeCardBodyHtml='';
   const dcAny=isDC&&(matOn||atOn||mtOn);
   if(dcAny){
     let secs='';
     if(matOn){
-      secs+=`<div style="margin-bottom:9px;">${redeLvlTitle('MAT — Muito Alta Tensão')}<div class="pdf-sub-grid">${pbox('Subestação',matSubNome)}${pbox('Distância à subestação',matDist)}</div></div>`;
+      secs+=`<div style="margin-bottom:9px;">${redeLvlTitle('MAT — Muito Alta Tensão')}${seOneHead('mat')}<div class="pdf-sub-grid">${pbox('Subestação',matSubNome)}${pbox('Distância à subestação',matDist)}</div>${seExtraPdf('mat')}</div>`;
     }
     if(atOn){
       const atBarrVal=atBarramento?(atBarramento+(atBarramentoKv?' · '+fmtNum(atBarramentoKv)+' kV':'')):(atBarramentoKv?fmtNum(atBarramentoKv)+' kV':'');
       let atCapTag='';
       if(capATState==='sem') atCapTag=`<div class="pdf-cap-tag pdf-cap-sem" style="margin-top:6px;">✕ Sem capacidade de receção disponível</div>`;
       else if(capATState==='ok') atCapTag=`<div class="pdf-cap-tag pdf-cap-ok" style="margin-top:6px;">✓ Capacidade disponível${atCapValor?' — '+fmtNum(atCapValor)+' MVA':''}</div>`;
-      secs+=`<div style="margin-bottom:9px;">${redeLvlTitle('AT — Alta Tensão')}<div class="pdf-sub-grid">${pbox('Subestação',atSubNome)}${pbox('Barramento',atBarrVal)}${atDist?pbox('Distância ao ponto de ligação',atDist,true):''}</div>${atCapTag}</div>`;
+      secs+=`<div style="margin-bottom:9px;">${redeLvlTitle('AT — Alta Tensão')}${seOneHead('at')}<div class="pdf-sub-grid">${pbox('Subestação',atSubNome)}${pbox('Barramento',atBarrVal)}${atDist?pbox('Distância ao ponto de ligação',atDist,true):''}</div>${atCapTag}${seExtraPdf('at')}</div>`;
     }
     if(mtOn){
-      secs+=`<div style="margin-bottom:4px;">${redeLvlTitle('MT — Média Tensão')}<div class="pdf-sub-grid">${pbox('Subestação',subNome)}${pbox('Concelho',subConc)}${distHtml}</div>${capTagHtml}</div>`;
+      secs+=`<div style="margin-bottom:4px;">${redeLvlTitle('MT — Média Tensão')}${seOneHead('mt')}<div class="pdf-sub-grid">${pbox('Subestação',subNome)}${pbox('Concelho',subConc)}${distHtml}</div>${capTagHtml}${seExtraPdf('mt')}</div>`;
     }
     redeCardBodyHtml=secs;
   } else {
-    redeCardBodyHtml=`<div class="pdf-sub-grid">${pbox('Subestação',subNome)}${pbox('Concelho',subConc)}${distHtml}</div>${capTagHtml}`;
+    redeCardBodyHtml=`${seOneHead('mt')}<div class="pdf-sub-grid">${pbox('Subestação',subNome)}${pbox('Concelho',subConc)}${distHtml}</div>${capTagHtml}${seExtraPdf('mt')}`;
   }
 
   // PV — bottom row position changes: Rede | PV (below Rede if PV active)
@@ -1399,6 +1550,7 @@ function buildPDFHtml(){
   const raioIdx=offDataRaio.map((r,i)=>({...r,_idx:i+1}));
   const seIdx=offDataSE.map((r,i)=>({...r,_idx:i+1}));
   let offPagesHtml='';
+
   // If PV is on page 2 and no offtaker pages, create a standalone PV page
   if(pvPage2Html && offPages===0){
     const pvPageNum=2;
@@ -1412,7 +1564,7 @@ function buildPDFHtml(){
       </div>
       <div class="pdf-footer">
         <div class="pdf-footer-left">Documento de uso interno · Ecochoice / Think Energy · Análise preliminar sujeita a validação técnica</div>
-        <div class="pdf-footer-right"><div class="pdf-footer-dot"></div>${ref} · Pág. 2/${totalPags}</div>
+        <div class="pdf-footer-right"><div class="pdf-footer-dot"></div>${ref} · Pág. ${pvPageNum}/${totalPags}</div>
       </div>
     </div>`;
   }
@@ -1421,7 +1573,7 @@ function buildPDFHtml(){
     offPagesHtml+=buildOffPage(
       showRaioPage?raioIdx.slice(start,start+ROWS_PER_OFF_PAGE):[],
       showSEPage?seIdx.slice(start,start+ROWS_PER_OFF_PAGE):[],
-      nome,ref,2+p,totalPags,pvPage2Html
+      nome,ref,2+p,totalPags,p===0?pvPage2Html:''
     );
   }
 
@@ -1460,7 +1612,7 @@ function buildPDFHtml(){
           <div class="pdf-card" style="flex:1;">
             <div class="pdf-card-head"><span>Terreno</span></div>
             <div class="pdf-card-body" style="display:flex;flex-direction:column;height:calc(100% - 30px);">
-              <div style="min-height:150px;background:#F4F6F3;border:1.5px dashed #C8D0C7;border-radius:5px;overflow:hidden;display:flex;align-items:center;justify-content:center;">${mapImgHtml}</div>
+              ${mainImgsHtml}
               ${extraImgHtml}
             </div>
           </div>
@@ -1798,6 +1950,7 @@ async function saveToSheet() {
     redeModos, matSubNome, matDist,
     atSubNome, atBarramento, atBarramentoKv, atDist,
     atCapEstado: capATState || '', atCapValor,
+    redeExtras: JSON.stringify(redeExtras),
     capEstado:  capState || '',
     capValor,   capTensao, capSE,
     nOfftakersRaio: offDataRaio.length,
@@ -1997,6 +2150,17 @@ async function preloadFromSheet() {
       setCapAT(t.atCapEstado);
       setVal('cap-at-valor', t.atCapValor);
     }
+    // Subestações adicionais (2.ª em diante) por nível
+    if (t.redeExtras) {
+      try {
+        const rx = JSON.parse(t.redeExtras);
+        redeExtras.mat = Array.isArray(rx.mat) ? rx.mat : [];
+        redeExtras.at  = Array.isArray(rx.at)  ? rx.at  : [];
+        redeExtras.mt  = Array.isArray(rx.mt)  ? rx.mt  : [];
+        setTimeout(() => { if (typeof renderAllSEExtras === 'function') renderAllSEExtras(); }, 350);
+      } catch(e) { console.warn('redeExtras: JSON inválido', e); }
+    }
+
     if (t.redeModos) {
       const modos = String(t.redeModos).split(',').map(s=>s.trim());
       redeDC.mat = modos.includes('MAT');
@@ -2066,6 +2230,9 @@ async function preloadFromSheet() {
     document.title = 'Ficha Técnica';
   }
 }
+
+// ── DEBUG (consola): estado interno da ficha ──
+window._dbg=()=>({imgMain,imgMains,imgExtras,imgPV,imgRedeImgs,redeExtras,redeDC,offDataRaio,offDataSE,capState,capATState,conclusions});
 
 // ── INIT ──
 buildCondGrid();
